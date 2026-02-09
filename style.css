@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap");
+
 :root {
   --primary: #3a3a3a;
   --primary-dark: #302d2d;
@@ -20,37 +21,52 @@ body {
   background-color: var(--primary);
 }
 
+/* ✅ Center Layout Perfect */
 .container {
-  display: grid;
-  place-items: center;
-  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
 
+/* ✅ Box Fixed */
 .box {
-  background-color: white;
-  width: 450px;
-  height: 850px;
-  padding: 20px;
+  width: 100%;
+  max-width: 450px;
   background-color: var(--primary-dark);
   color: white;
-  position: absolute;
+  padding: 20px;
+  border-radius: 15px;
+
+  /* ❌ Absolute remove করা হয়েছে */
+  position: relative;
+
+  /* ❌ Fixed height remove */
+  height: auto;
 }
+
+/* Text Styles */
 p {
   font-size: 14px;
 }
+
 h1 {
   font-weight: 500;
   font-size: 32px;
 }
+
 h2 {
   font-weight: 400;
   font-size: 24px;
 }
+
 h3 {
   font-weight: 400;
   font-size: 20px;
 }
 
+/* Balance Section */
 .box_upper,
 .balance {
   display: flex;
@@ -62,6 +78,7 @@ h3 {
   margin-top: 20px;
 }
 
+/* Transactions Section */
 .transaction_container {
   margin-top: 20px;
 }
@@ -72,96 +89,123 @@ h3 {
   flex-direction: column;
   gap: 10px;
 }
+
+/* Single Transaction */
 .transaction {
   background-color: white;
   color: black;
   display: flex;
+  border-radius: 5px;
+  overflow: hidden;
 }
+
 .transaction .left {
-  padding: 7px;
+  padding: 10px;
   flex-grow: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* Status Box */
 .status {
   display: grid;
   place-items: center;
   color: white;
-  min-height: 40px;
-  min-width: 40px;
+  min-height: 45px;
+  min-width: 45px;
 }
+
 .credit {
   background-color: var(--green);
 }
+
 .debit {
   background-color: var(--red);
 }
 
+/* ✅ Form এখন আর absolute না */
 .transaction_form {
+  margin-top: 30px;
   background-color: white;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
   color: black;
   padding: 20px;
+  border-radius: 10px;
 }
+
 .transaction_form h3 {
   margin-bottom: 10px;
 }
 
+/* Form Controls */
 .form_control {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-.form_control:first-child {
-  flex: 2;
-}
+
 .inputs {
   display: flex;
   gap: 10px;
 }
+
+/* Input Responsive */
 form input {
   padding: 10px 15px;
-  outline: 1px solid transparent;
   border: 1px solid black;
-width: 100%;
+  width: 100%;
 }
+
 form input:focus-visible {
   outline: 1px solid var(--primary-dark);
   border: 1px solid var(--primary-dark);
 }
 
+/* Buttons */
 .buttons_container {
   display: flex;
-  margin-top: 10px;
+  gap: 10px;
+  margin-top: 15px;
 }
+
 .buttons_container button {
-  width: 100%;
+  flex: 1;
   height: 45px;
   color: white;
   border: none;
   opacity: 0.9;
-  transition: 0.3s ease-in-out;
   cursor: pointer;
+  border-radius: 8px;
+  transition: 0.3s;
 }
+
 .buttons_container button:hover {
   opacity: 1;
-  transition: 0.3s ease-in-out;
 }
 
 #earnBtn {
   background-color: var(--green);
 }
+
 #expBtn {
   background-color: var(--red);
 }
 
+/* ✅ Mobile Responsive Perfect */
 @media (max-width: 500px) {
-  .box {
-    width: 95%;
+  h1 {
+    font-size: 26px;
+  }
+
+  .inputs {
+    flex-direction: column;
+  }
+
+  .buttons_container {
+    flex-direction: column;
+  }
+
+  .buttons_container button {
+    width: 100%;
   }
 }
