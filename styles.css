@@ -11,6 +11,7 @@ body {
    background: radial-gradient(circle at top left, #7f00ff, transparent 50%),
               radial-gradient(circle at bottom right, #00c6ff, transparent 50%),
               #05010d;
+  padding-bottom: 70px;             
 }
 .wrapper {
   width: 90%;
@@ -55,7 +56,7 @@ body {
 }
 .container input:focus {
   border-color: #587ef4;
-}
+  }
 h3{
     color: #e5e5e5;
 }
@@ -202,9 +203,23 @@ h3{
 @media screen and (max-width: 600px) {
   .wrapper {
     font-size: 14px;
+    
   }
   .sub-container {
     grid-template-columns: 1fr;
     gap: 1em;
   }
 }
+footer {
+  text-align: center;
+  padding: 15px;
+  margin-top: 100px;
+  color: white;
+  font-size: 14px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
