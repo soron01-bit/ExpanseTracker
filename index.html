@@ -1,83 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Expense Tracker</title>
+    <title>Budget App</title>
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="styles.css" />
-    <script src="./index.js" defer></script>
   </head>
   <body>
-    <div class="container">
-      <div class="box">
-        <section class="box_upper">
-          <h1>Expense Tracker</h1>
-
-          <div class="balance">
-            <h2>₹0</h2>
-            <h3>Your Balance</h3>
+    <div class="wrapper">
+      <div class="container">
+        <div class="sub-container">
+          <!-- Budget -->
+          <div class="total-amount-container">
+            <h3>Budget</h3>
+            <p class="hide error" id="budget-error">
+              Value cannot be empty or negative
+            </p>
+            <input
+              type="number"
+              id="total-amount"
+              placeholder="Enter Total Amount"
+            />
+            <button class="submit" id="total-amount-button">Set Budget</button>
           </div>
-        </section>
 
-        <div class="transaction_container">
-          <h3>Transactions</h3>
-          <hr />
-
-          <div class="transactions">
-            <div class="transaction">
-              <div class="left">
-                <p>Example Text</p>
-                <p>+ ₹ 200</p>
-              </div>
-              <div class="status credit">C</div>
-            </div>
-            <div class="transaction">
-              <div class="left">
-                <p>Example Text</p>
-                <p>+ ₹ 200</p>
-              </div>
-              <div class="status debit">D</div>
-            </div>
+          <!-- Expenditure -->
+          <div class="user-amount-container">
+            <h3>Expenses</h3>
+            <p class="hide error" id="product-title-error">
+              Values cannot be empty
+            </p>
+            <input
+              type="text"
+              class="product-title"
+              id="product-title"
+              placeholder="Enter Title of Product"
+            />
+            <input
+              type="number"
+              id="user-amount"
+              placeholder="Enter Cost of Product"
+            />
+            <button class="submit" id="check-amount">Check Amount</button>
           </div>
         </div>
-        <section class="transaction_form">
-          <h3>Add Transactions</h3>
-          <form>
-            <div class="inputs">
-              <div class="form_control">
-                <label for="text">Text</label>
-                <input
-                  placeholder="Enter Description"
-                  type="text"
-                  name="text"
-                  id="text"
-                />
-              </div>
-              <div class="form_control">
-                <label for="amount">Amount</label>
-                <input
-                  placeholder="Enter Amount"
-                  type="number"
-                  name="amount"
-                  id="amount"
-                />
-              </div>
-            </div>
-
-            <div class="buttons_container">
-              <button id="earnBtn">
-                <p>₹0</p>
-                <p>Earnings</p>
-              </button>
-              <button id="expBtn">
-                <p>₹0</p>
-                <p>Expense</p>
-              </button>
-            </div>
-          </form>
-        </section>
+        <!-- Output -->
+        <div class="output-container flex-space">
+          <div>
+            <p class="total">Total Budget</p>
+            <span id="amount">0</span>
+          </div>
+          <div>
+            <p>Expenses</p>
+            <span id="expenditure-value">0</span>
+          </div>
+          <div>
+            <p class="balance">Balance</p>
+            <span id="balance-amount">0</span>
+          </div>
+        </div>
+      </div>
+      <!-- List -->
+      <div class="list">
+        <h3>Expense List</h3>
+        <div class="list-container" id="list"></div>
       </div>
     </div>
+    <!-- Script -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script src="scrypt.js"></script>
   </body>
 </html>
