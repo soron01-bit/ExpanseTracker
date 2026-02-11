@@ -14,9 +14,6 @@ const list = document.getElementById("list");
 
 let tempAmount = 0;
 
-/* ==========================================
-   ✅ MONTHLY RESET SYSTEM
-========================================== */
 let currentMonth = new Date().getMonth();
 let savedMonth = localStorage.getItem("month");
 
@@ -25,9 +22,7 @@ if (savedMonth != currentMonth) {
   localStorage.setItem("month", currentMonth);
 }
 
-/* ==========================================
-   ✅ LOAD SAVED DATA
-========================================== */
+
 let savedBudget = localStorage.getItem("budget");
 let savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
 
