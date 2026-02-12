@@ -123,10 +123,32 @@ const listCreator = (expenseName, expenseValue) => {
   let sublistContent = document.createElement("div");
   sublistContent.classList.add("sublist-content", "flex-space");
 
-  sublistContent.innerHTML = `
-    <p class="product">${expenseName}</p>
-    <p class="amount">${expenseValue}</p>
-  `;
+  // sublistContent.innerHTML = `
+  //   <p class="product">${expenseName}</p>
+  //   <p class="amount">${expenseValue}</p>
+  // `;
+
+// Get Today's Date
+let date = new Date();
+
+let formattedDate = date.toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  // year: "numeric"
+});
+
+sublistContent.innerHTML = `
+  <p class="product">${expenseName}</p>
+
+  <p class="date">${formattedDate}</p>
+
+  <p class="amount">${expenseValue}</p>
+`;
+
+
+
+
+
 
   let editButton = document.createElement("button");
   editButton.classList.add("fa-solid", "fa-pen-to-square", "edit");
@@ -191,3 +213,18 @@ checkAmountButton.addEventListener("click", () => {
 window.onload = function () {
   loadExpenses();
 };
+
+
+// Show Month-Year in Heading (February-2026)
+let today = new Date();
+
+let monthNames = [
+  "January", "February", "March", "April",
+  "May", "June", "July", "August",
+  "September", "October", "November", "December"
+];
+
+let month = monthNames[today.getMonth()];
+let year = today.getFullYear();
+
+document.getElementById("current-month").innerText = `${month}-${year}`;

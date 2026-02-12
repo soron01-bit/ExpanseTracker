@@ -147,7 +147,7 @@ h3{
     transition: background-color 0.8s ease;
 }
 .list {
-  background-color: #ffffff;
+  background-color: #ddedd9;
   padding: 1.8em 1.2em;
   box-shadow: 0 0.6em 1.2em rgba(28, 0, 80, 0.06);
   border-radius: 0.6em;
@@ -158,11 +158,18 @@ h3{
   margin-bottom: 0.6em;
   padding: 0.5em 1em;
   display: grid;
+   align-items: center;        /* ✅ vertically center */
+  justify-content: center;
   grid-template-columns: 3fr 2fr 1fr 1fr;
+  gap: 1em;
 }
 .product {
-  font-weight: 500;
+  font-weight: 600;
   color: #363d55;
+  white-space: nowrap;       
+  overflow: hidden;          
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 .total{
     margin-left: 11px;
@@ -170,6 +177,7 @@ h3{
 .amount {
   color: #414a67;
   margin-left: 20%;
+  font-weight: 600;
 }
 .balance{
     margin-right: 11px;
@@ -193,6 +201,7 @@ h3{
 }
 .edit,
 .delete {
+
   background: transparent;
   cursor: pointer;
   margin-right: 1.5em;
@@ -221,4 +230,6 @@ footer {
 
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* ............ */
 
