@@ -324,21 +324,39 @@ let monthNames = [
 // document.getElementById("downloadPdf").addEventListener("click", () => {
 //   window.print();
 // });
-document.getElementById("downloadPdf").addEventListener("click", function () {
+// document.getElementById("downloadPdf").addEventListener("click", function () {
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+//   const { jsPDF } = window.jspdf;
+//   const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text("Monthly Expense Report", 20, 20);
+//   doc.setFontSize(18);
+//   doc.text("Monthly Expense Report", 20, 20);
 
-  // Data URL generate
-  let pdfData = doc.output("dataurlstring");
+//   // Data URL generate
+//   let pdfData = doc.output("dataurlstring");
 
-  // Open PDF safely in browser
-  let newWindow = window.open();
-  newWindow.document.write(
-    `<iframe width="100%" height="100%" src="${pdfData}"></iframe>`
-  );
+//   // Open PDF safely in browser
+//   let newWindow = window.open();
+//   newWindow.document.write(
+//     `<iframe width="100%" height="100%" src="${pdfData}"></iframe>`
+//   );
 
+// });
+
+document.getElementById("downloadCSV").addEventListener("click", () => {
+
+  let csvContent = "Title,Amount,Date\n";
+
+  savedExpenses.forEach((item) => {
+    csvContent += `${item.title},${item.cost},${new Date(item.date).toLocaleDateString()}\n`;
+  });
+
+  let blob = new Blob([csvContent], { type: "text/csv" });
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "Expense_Report.csv";
+  a.click();
 });
+
