@@ -321,7 +321,7 @@ let monthNames = [
   "December",
 ];
 
-document.getElementById("downloadPdf").addEventListener("click", function () {
+document.getElementById("downloadPdf").addEventListener("click", async () => {
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -329,18 +329,26 @@ document.getElementById("downloadPdf").addEventListener("click", function () {
   doc.setFontSize(18);
   doc.text("Monthly Expense Report", 20, 20);
 
-  let monthText = document.getElementById("current-month").innerText;
   doc.setFontSize(12);
-  doc.text("Month: " + monthText, 20, 30);
+  doc.text("Expense List:", 20, 40);
 
-  doc.text("Expense List:", 20, 50);
+  // PDF blob create
+  const blob = doc.output("blob");
 
-  // Blob output
-  const pdfBlob = doc.output("blob");
+  // Convert blob into File
+  const file = new File([blob], "Expense_Report.pdf", {
+    type: "application/pdf"
+  });
 
-  // Create URL
-  const pdfUrl = URL.createObjectURL(pdfBlob);
-
-  // Open PDF in new tab (Mobile friendly)
-  window.open(pdfUrl, "_blank");
+  // Mobile Share Feature
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    await navigator.share({
+      files: [file],
+      title: "Expense Report",
+      text: "Here is your expense report PDF"
+    });
+  } else {
+    alert("Download not supported on this device. Please use PC.");
+  }
 });
+
