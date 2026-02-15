@@ -321,21 +321,19 @@ let monthNames = [
   "December",
 ];
 
-let month = monthNames[today.getMonth()];
-let year = today.getFullYear();
+document.getElementById("downloadPdf").addEventListener("click", () => {
 
-document.getElementById("current-month").innerText = `${month}-${year}`;
+  let element = document.getElementById("expenseSection");
 
-document.getElementById("downloadPdf").addEventListener("click", function () {
+  html2pdf()
+    .from(element)
+    .toPdf()
+    .get("pdf")
+    .then(function (pdf) {
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+      let blob = pdf.output("blob");
+      let url = URL.createObjectURL(blob);
 
-  doc.text("Monthly Expense Report", 20, 20);
-
-  // Instead of Save → Open PDF in new tab
-  let pdfBlob = doc.output("blob");
-  let url = URL.createObjectURL(pdfBlob);
-
-  window.open(url);
+      window.open(url);
+    });
 });
