@@ -8,9 +8,9 @@ body {
   /* background-color: #f7f9fd; */
    min-height: 100vh;
   background-attachment: fixed;
-   background: radial-gradient(circle at top left, #7f00ff, transparent 50%),
+   background: radial-gradient(circle at top left, #f0159f, transparent 50%),
               radial-gradient(circle at bottom right, #00c6ff, transparent 50%),
-              #05010d;
+              #6c1b97;
   padding-bottom: 70px;             
 }
 .wrapper {
@@ -134,7 +134,8 @@ h3{
 .submit {
   font-size: 1em;
   margin-top: 0.8em;
-  background-color: #d56549;
+  background: linear-gradient(135deg, #ffcc00, #ff8800);
+  /* background-color: #3d4336e5; */
   border: none;
   outline: none;
   color: #ffffff;
