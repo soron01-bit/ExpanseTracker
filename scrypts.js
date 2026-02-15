@@ -248,38 +248,15 @@ document.getElementById("current-month").innerText = `${month}-${year}`;
    EXPORT EXPENSES AS CSV FILE
 ================================= */
 
-document.getElementById("downloadCSV").addEventListener("click", () => {
+document.getElementById("downloadCSV").addEventListener("click", async () => {
 
-  // যদি কোনো expense না থাকে
-  if (savedExpenses.length === 0) {
-    alert("No expenses to export!");
-    return;
-  }
-
-  // CSV Header
   let csvContent = "Title,Amount,Date\n";
 
-  // Expense Data Add
   savedExpenses.forEach((item) => {
-    let title = item.title;
-    let amount = item.cost;
-    let date = new Date(item.date).toLocaleDateString("en-GB");
-
-    csvContent += `${title},${amount},${date}\n`;
+    csvContent += `${item.title},${item.cost},${new Date(item.date).toLocaleDateString("en-GB")}\n`;
   });
 
-  // Create CSV File
-  let blob = new Blob([csvContent], { type: "text/csv" });
-  let url = URL.createObjectURL(blob);
+  await navigator.clipboard.writeText(csvContent);
 
-  // Download Link Create
-  let link = document.createElement("a");
-  link.href = url;
-
-  // File Name (Month Wise)
-  let monthText = document.getElementById("current-month").innerText;
-  link.download = `Expense_Report_${monthText}.csv`;
-
-  // Auto Click Download
-  link.click();
+  alert("CSV Copied! Paste it into Notes or Excel 😊");
 });
