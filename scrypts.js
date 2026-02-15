@@ -321,19 +321,26 @@ let monthNames = [
   "December",
 ];
 
-document.getElementById("downloadPdf").addEventListener("click", () => {
+document.getElementById("downloadPdf").addEventListener("click", function () {
 
-  let element = document.getElementById("expenseSection");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-  html2pdf()
-    .from(element)
-    .toPdf()
-    .get("pdf")
-    .then(function (pdf) {
+  doc.setFontSize(18);
+  doc.text("Monthly Expense Report", 20, 20);
 
-      let blob = pdf.output("blob");
-      let url = URL.createObjectURL(blob);
+  let monthText = document.getElementById("current-month").innerText;
+  doc.setFontSize(12);
+  doc.text("Month: " + monthText, 20, 30);
 
-      window.open(url);
-    });
+  doc.text("Expense List:", 20, 50);
+
+  // Blob output
+  const pdfBlob = doc.output("blob");
+
+  // Create URL
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Open PDF in new tab (Mobile friendly)
+  window.open(pdfUrl, "_blank");
 });
