@@ -321,6 +321,24 @@ let monthNames = [
   "December",
 ];
 
-document.getElementById("downloadPdf").addEventListener("click", () => {
-  window.print();
+// document.getElementById("downloadPdf").addEventListener("click", () => {
+//   window.print();
+// });
+document.getElementById("downloadPdf").addEventListener("click", function () {
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("Monthly Expense Report", 20, 20);
+
+  // Data URL generate
+  let pdfData = doc.output("dataurlstring");
+
+  // Open PDF safely in browser
+  let newWindow = window.open();
+  newWindow.document.write(
+    `<iframe width="100%" height="100%" src="${pdfData}"></iframe>`
+  );
+
 });
