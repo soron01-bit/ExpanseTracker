@@ -326,3 +326,16 @@ let year = today.getFullYear();
 
 document.getElementById("current-month").innerText = `${month}-${year}`;
 
+document.getElementById("downloadPdf").addEventListener("click", function () {
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.text("Monthly Expense Report", 20, 20);
+
+  // Instead of Save → Open PDF in new tab
+  let pdfBlob = doc.output("blob");
+  let url = URL.createObjectURL(pdfBlob);
+
+  window.open(url);
+});
