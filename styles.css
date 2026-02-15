@@ -140,7 +140,7 @@ h3{
   outline: none;
   color: #ffffff;
   padding: 0.6em 1.2em;
-  border-radius: 0.3em;
+  border-radius: 1em;
   cursor: pointer;
 }
 .submit:hover{
