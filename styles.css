@@ -8,9 +8,9 @@ body {
   /* background-color: #f7f9fd; */
    min-height: 100vh;
   background-attachment: fixed;
-   background: radial-gradient(circle at top left, #f0159f, transparent 50%),
-              radial-gradient(circle at bottom right, #00c6ff, transparent 50%),
-              #6c1b97;
+   background: radial-gradient(circle at top left, #14ca14, transparent 50%),
+              radial-gradient(circle at bottom right, #1dba08, transparent 50%),
+              #97891b;
   padding-bottom: 70px;             
 }
 .wrapper {
