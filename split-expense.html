@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Split Expense</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <div class="page-header">
+          <h2>Split Expense</h2>
+          <a class="back-link" href="index.html">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Tracker
+          </a>
+        </div>
+
+        <p class="split-page-note">
+          Create shared expenses here. They will save to the same tracker and show up on the main dashboard.
+        </p>
+
+        <div class="total-amount-container">
+          <h3>Split Details</h3>
+          <p class="hide error" id="split-expense-error">
+            Fill all split expense fields correctly
+          </p>
+          <input type="text" id="split-title" placeholder="Split title" />
+          <input type="number" id="split-total-amount" placeholder="Total amount" />
+          <input type="text" id="split-paid-by" placeholder="Paid by" />
+          <input
+            type="text"
+            id="split-participants"
+            placeholder="Participants (comma separated)"
+          />
+          <select id="split-type">
+            <option value="equal">Equal split</option>
+            <option value="exact">Exact amounts</option>
+            <option value="percentage">Percentage split</option>
+          </select>
+          <input
+            type="text"
+            id="split-values"
+            placeholder="Values for exact / percentage split"
+          />
+          <button class="submit" id="add-split-expense">Add Split Expense</button>
+        </div>
+
+        <div class="list split-page-list">
+          <h3>Saved Split Expenses</h3>
+          <div class="list-container" id="split-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="split-expense.js"></script>
+  </body>
+</html>

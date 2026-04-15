@@ -164,6 +164,62 @@ h3{
   grid-template-columns: 3fr 2fr 1fr 1fr;
   gap: 1em;
 }
+
+.expense-title-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.split-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff4757, #ff7f50);
+  white-space: nowrap;
+}
+
+.split-details {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.split-meta {
+  padding: 0.28em 0.6em;
+  border-radius: 999px;
+  background: rgba(88, 126, 244, 0.12);
+  color: #363d55;
+  font-size: 0.82em;
+}
+
+.member-payment-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-paid-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8em;
+  color: #363d55;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 0.28em 0.6em;
+}
+
+.member-paid-checkbox {
+  accent-color: #2ecc71;
+}
 .product {
   font-weight: 600;
   color: #363d55;
@@ -190,6 +246,79 @@ h3{
 }
 .product-title {
   margin-bottom: 1em;
+}
+.split-expense-panel {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.split-expense-panel h4 {
+  color: #ffffff;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.split-expense-panel input,
+.split-expense-panel select {
+  margin-bottom: 0.75em;
+}
+
+.submit.secondary {
+  background: linear-gradient(135deg, #2ecc71, #16a085);
+}
+
+.submit.secondary:hover {
+  background: linear-gradient(135deg, #ff4757, #ff6b81);
+}
+.page-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.2em;
+}
+
+.page-header h2 {
+  color: #ffffff;
+  font-size: 1.4em;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.6em 1em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.split-page-note {
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1.1em;
+}
+
+.split-page-list {
+  margin-top: 1.2em;
+}
+
+.split-page-list .sublist-content {
+  grid-template-columns: 3fr 2fr 1fr 1fr;
+}
+
+.split-page-list .amount {
+  margin-left: 0;
 }
 .hide {
   display: none;
@@ -230,6 +359,198 @@ footer {
   backdrop-filter: blur(10px);
 
   border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ===============================
+   ANALYTICS SECTION
+================================= */
+
+.analytics-section {
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+  padding: 25px;
+  margin: 30px 0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.analytics-section h3 {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 1.3em;
+  text-align: center;
+}
+
+.analytics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.analytics-card {
+  background: linear-gradient(135deg, rgba(255, 204, 0, 0.1), rgba(255, 136, 0, 0.1));
+  border: 1px solid rgba(255, 204, 0, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.analytics-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(255, 204, 0, 0.3);
+}
+
+.analytics-card p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9em;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.analytics-card span {
+  color: #ffcc00;
+  font-size: 1.8em;
+  font-weight: 600;
+  display: block;
+}
+
+/* Advisor */
+.advisor-section {
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+  padding: 25px;
+  margin: 30px 0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.advisor-section h3 {
+  color: white;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.advisor-card {
+  border-radius: 16px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.advisor-card.warning {
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.25), rgba(255, 107, 129, 0.20));
+  border-color: rgba(255, 71, 87, 0.6);
+}
+
+.advisor-card.safe {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.18), rgba(22, 160, 133, 0.14));
+  border-color: rgba(46, 204, 113, 0.45);
+}
+
+.advisor-title {
+  color: #ffcc00;
+  font-size: 1.05em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.advisor-message {
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.advisor-tips {
+  margin-left: 18px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.advisor-tips li {
+  margin-bottom: 6px;
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-top: 30px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===============================
+   ALERT NOTIFICATION
+================================= */
+
+.alert-container {
+  background: linear-gradient(135deg, #ff4757, #ff6348);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 20px rgba(255, 71, 87, 0.4);
+  border-left: 5px solid #ff3838;
+  animation: slideIn 0.5s ease;
+}
+
+.alert-container.hide {
+  display: none;
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.alert-content i {
+  font-size: 1.8em;
+  color: white;
+  flex-shrink: 0;
+}
+
+.alert-title {
+  color: white;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  font-size: 1.1em;
+}
+
+.alert-message {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-size: 0.95em;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .analytics-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+
+  .advisor-section {
+    padding: 18px;
+  }
 }
 
 /* ............ */

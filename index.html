@@ -15,8 +15,9 @@
     />
     <!-- Stylesheet -->
     <link rel="stylesheet" href="styles.css" />
+    <!-- Chart.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   </head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <body>
     <div class="wrapper">
@@ -54,6 +55,9 @@
               placeholder="Enter Cost of Product"
             />
             <button class="submit" id="check-amount">Check Amount</button>
+            <a class="submit secondary page-link" href="split-expense.html">
+              Open Split Expense Page
+            </a>
           </div>
         </div>
         <!-- Output -->
@@ -71,15 +75,62 @@
             <span id="balance-amount">0</span>
           </div>
         </div>
+
+        <!-- Daily Spending Alert -->
+        <div class="alert-container hide" id="spending-alert">
+          <div class="alert-content">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>
+              <p class="alert-title">⚠️ High Spending Alert!</p>
+              <p class="alert-message" id="alert-message"></p>
+            </div>
+          </div>
+        </div>
       </div>
+      <!-- Analytics Section -->
+      <div class="analytics-section">
+        <h3>📊 Daily Spending Analytics</h3>
+        <div class="analytics-cards">
+          <div class="analytics-card">
+            <p>Today's Spending</p>
+            <span id="today-spending">0</span>
+          </div>
+          <div class="analytics-card">
+            <p>Yesterday's Spending</p>
+            <span id="yesterday-spending">0</span>
+          </div>
+          <div class="analytics-card">
+            <p>Daily Average</p>
+            <span id="daily-average">0</span>
+          </div>
+          <div class="analytics-card">
+            <p>Spending Trend</p>
+            <span id="spending-trend">-</span>
+          </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-container">
+          <canvas id="expenseChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Smart Advisor -->
+      <div class="advisor-section">
+        <h3>🤖 Smart Spending Advisor</h3>
+        <div class="advisor-card" id="advisor-card">
+          <p class="advisor-title" id="advisor-title">No warning yet</p>
+          <p class="advisor-message" id="advisor-message">
+            Add an expense to get food warnings and saving tips.
+          </p>
+          <ul class="advisor-tips" id="advisor-tips"></ul>
+        </div>
+      </div>
+
       <!-- List -->
       <div class="list">
         <h3>Expense List(<span id="current-month"></span>)</h3>
         <div class="list-container" id="list"></div>
-
-
-
-
       </div>
     </div>
 
