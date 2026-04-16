@@ -367,17 +367,18 @@ function updateExpenseChart() {
         {
           label: "Daily Expenses",
           data,
-          borderColor: "#ffcc00",
-          backgroundColor: "rgba(255, 204, 0, 0.1)",
-          borderWidth: 2.5,
+          borderColor: "#2b6df8",
+          backgroundColor: "rgba(43, 109, 248, 0.16)",
+          borderWidth: 3,
           tension: 0.4,
           fill: true,
-          pointRadius: 5,
-          pointBackgroundColor: "#ffcc00",
-          pointBorderColor: "#ffcc00",
-          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: "#0f172a",
+          pointBorderColor: "#9fc1ff",
+          pointBorderWidth: 2.5,
           pointHoverRadius: 7,
-          pointHoverBackgroundColor: "#ff8800",
+          pointHoverBackgroundColor: "#1d4ed8",
+          pointHoverBorderColor: "#ffffff",
         },
       ],
     },
@@ -387,18 +388,18 @@ function updateExpenseChart() {
       plugins: {
         legend: {
           labels: {
-            color: "#ffcc00",
+            color: "#24324d",
             font: {
-              size: 12,
+              size: 13,
               weight: "600",
             },
           },
         },
         tooltip: {
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
-          titleColor: "#ffcc00",
-          bodyColor: "#fff",
-          borderColor: "#ffcc00",
+          backgroundColor: "rgba(15, 23, 42, 0.94)",
+          titleColor: "#93c5fd",
+          bodyColor: "#f8fafc",
+          borderColor: "#60a5fa",
           borderWidth: 1,
           padding: 12,
           displayColors: false,
@@ -413,10 +414,14 @@ function updateExpenseChart() {
         y: {
           beginAtZero: true,
           grid: {
-            color: "rgba(255, 255, 255, 0.1)",
+            color: "rgba(36, 50, 77, 0.14)",
           },
           ticks: {
-            color: "#ffcc00",
+            color: "#334155",
+            font: {
+              size: 12,
+              weight: "600",
+            },
             callback(value) {
               return "Rs " + value;
             },
@@ -424,10 +429,14 @@ function updateExpenseChart() {
         },
         x: {
           grid: {
-            display: false,
+            color: "rgba(36, 50, 77, 0.08)",
           },
           ticks: {
-            color: "rgba(255, 255, 255, 0.8)",
+            color: "#475569",
+            font: {
+              size: 11,
+              weight: "600",
+            },
           },
         },
       },
