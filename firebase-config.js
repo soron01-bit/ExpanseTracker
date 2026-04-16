@@ -2,14 +2,30 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyADgEL0zawmR2qlUWTq3r2ZNJVSxFCwA4M",
-  authDomain: "login-form-122cb.firebaseapp.com",
-  projectId: "login-form-122cb",
-  storageBucket: "login-form-122cb.firebasestorage.app",
-  messagingSenderId: "192959769573",
-  appId: "1:192959769573:web:83ac0ae380777aea611d0c",
-};
+async function loadFirebaseConfig() {
+  if (window.__FIREBASE_CONFIG__) {
+    return window.__FIREBASE_CONFIG__;
+  }
+
+  try {
+    const response = await fetch("/api/firebase-config", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch {
+    // Local static hosting without API route can still use firebase-runtime-config.js.
+  }
+
+  throw new Error(
+    "Firebase config missing. Add firebase-runtime-config.js locally or set Vercel env vars for /api/firebase-config."
+  );
+}
+
+const firebaseConfig = await loadFirebaseConfig();
 
 const app = initializeApp(firebaseConfig);
 
