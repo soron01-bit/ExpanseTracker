@@ -20,7 +20,31 @@
   </head>
 
   <body>
-    <div class="wrapper">
+    <div class="auth-container">
+      <h3>Account</h3>
+      <p class="hide error" id="auth-error">Authentication failed</p>
+      <div class="auth-fields" id="auth-fields">
+        <input type="email" id="auth-email" placeholder="Email" />
+        <input type="password" id="auth-password" placeholder="Password" />
+        <div class="auth-buttons">
+          <button class="submit" id="register-button">Register</button>
+          <button class="submit secondary" id="login-button">Login</button>
+        </div>
+        <button class="submit google-button" id="google-login-button">
+          <i class="fa-brands fa-google"></i>
+          Sign in with Google
+        </button>
+        <button class="auth-link-button" id="forgot-password-button" type="button">
+          Forgot password?
+        </button>
+      </div>
+      <div class="auth-status hide" id="auth-status">
+        <p id="user-email"></p>
+        <button class="submit" id="logout-button">Logout</button>
+      </div>
+    </div>
+
+    <div class="wrapper hide" id="app-shell">
       <div class="container">
         <div class="sub-container">
           <!-- Budget -->
@@ -138,6 +162,6 @@
     <!-- Script -->
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <script src="scrypt.js"></script>
+    <script type="module" src="scrypt.js"></script>
   </body>
 </html>

@@ -1,3 +1,24 @@
+import { auth, db } from "./firebase-config.js";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+  query,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
 const splitExpenseButton = document.getElementById("add-split-expense");
 const splitExpenseError = document.getElementById("split-expense-error");
 const splitTitleInput = document.getElementById("split-title");
@@ -8,15 +29,59 @@ const splitTypeInput = document.getElementById("split-type");
 const splitValuesInput = document.getElementById("split-values");
 const splitList = document.getElementById("split-list");
 
-let savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+const authError = document.getElementById("auth-error");
+const authEmail = document.getElementById("auth-email");
+const authPassword = document.getElementById("auth-password");
+const registerButton = document.getElementById("register-button");
+const loginButton = document.getElementById("login-button");
+const googleLoginButton = document.getElementById("google-login-button");
+const forgotPasswordButton = document.getElementById("forgot-password-button");
+const logoutButton = document.getElementById("logout-button");
+const authFields = document.getElementById("auth-fields");
+const authStatus = document.getElementById("auth-status");
+const userEmail = document.getElementById("user-email");
+const appShell = document.getElementById("app-shell");
 
-function saveExpenses() {
-  localStorage.setItem("expenses", JSON.stringify(savedExpenses));
+let currentUser = null;
+let savedExpenses = [];
+const googleProvider = new GoogleAuthProvider();
+
+function showAuthError(message) {
+  authError.innerText = message;
+  authError.classList.remove("hide");
+}
+
+function clearAuthError() {
+  authError.classList.add("hide");
+}
+
+function getAuthEmailOrShowError() {
+  const email = authEmail.value.trim();
+  if (!email) {
+    showAuthError("Enter your email first, then click forgot password.");
+    return "";
+  }
+  return email;
+}
+
+function setSignedInUi(user) {
+  authFields.classList.add("hide");
+  authStatus.classList.remove("hide");
+  appShell.classList.remove("hide");
+  userEmail.innerText = user.email || "Logged in";
+}
+
+function setSignedOutUi() {
+  authFields.classList.remove("hide");
+  authStatus.classList.add("hide");
+  appShell.classList.add("hide");
+  userEmail.innerText = "";
+  splitList.innerHTML = '<p class="split-page-note">Login to view split expenses.</p>';
 }
 
 function parseCommaList(value) {
   return value
-    .split(/[\s,]+/)
+    .split(/[,]+/)
     .map((item) => item.trim())
     .filter(Boolean);
 }
@@ -63,34 +128,60 @@ function buildSplitShares(totalAmount, participants, splitType, splitValues) {
   }));
 }
 
+function getExpensesCollectionRef(uid) {
+  return collection(db, "users", uid, "expenses");
+}
+
 function getSplitExpenses() {
   return savedExpenses.filter((expense) => expense.type === "split");
 }
 
-function updateMemberPayment(expenseId, participantName, isPaid) {
-  savedExpenses = savedExpenses.map((expense) => {
-    if (expense.id !== expenseId) {
-      return expense;
-    }
+async function loadExpenses(uid) {
+  const expensesQuery = query(getExpensesCollectionRef(uid), orderBy("date", "desc"));
+  const snapshot = await getDocs(expensesQuery);
 
-    const nextPayments = {
-      ...(expense.memberPayments || getDefaultMemberPayments(expense.participants || [], expense.paidBy || "")),
-      [participantName]: isPaid,
-    };
+  savedExpenses = snapshot.docs.map((entry) => ({
+    id: entry.id,
+    ...entry.data(),
+  }));
 
-    return {
-      ...expense,
-      memberPayments: nextPayments,
-    };
-  });
-
-  saveExpenses();
   renderSplitExpenses();
 }
 
-function removeSplitExpense(id) {
+async function updateMemberPayment(expenseId, participantName, isPaid) {
+  if (!currentUser) {
+    return;
+  }
+
+  const existing = savedExpenses.find((expense) => expense.id === expenseId);
+  if (!existing) {
+    return;
+  }
+
+  const nextPayments = {
+    ...(existing.memberPayments ||
+      getDefaultMemberPayments(existing.participants || [], existing.paidBy || "")),
+    [participantName]: isPaid,
+  };
+
+  await updateDoc(doc(db, "users", currentUser.uid, "expenses", expenseId), {
+    memberPayments: nextPayments,
+  });
+
+  savedExpenses = savedExpenses.map((expense) =>
+    expense.id === expenseId ? { ...expense, memberPayments: nextPayments } : expense
+  );
+
+  renderSplitExpenses();
+}
+
+async function removeSplitExpense(id) {
+  if (!currentUser) {
+    return;
+  }
+
+  await deleteDoc(doc(db, "users", currentUser.uid, "expenses", id));
   savedExpenses = savedExpenses.filter((expense) => expense.id !== id);
-  saveExpenses();
   renderSplitExpenses();
 }
 
@@ -100,7 +191,8 @@ function renderSplitExpenses() {
   const splitExpenses = getSplitExpenses();
 
   if (!splitExpenses.length) {
-    splitList.innerHTML = '<p class="split-page-note">No split expenses saved yet.</p>';
+    splitList.innerHTML =
+      '<p class="split-page-note">No split expenses saved yet.</p>';
     return;
   }
 
@@ -113,11 +205,14 @@ function renderSplitExpenses() {
       month: "short",
     });
 
-    const memberPayments = expense.memberPayments || getDefaultMemberPayments(expense.participants || [], expense.paidBy || "");
+    const memberPayments =
+      expense.memberPayments ||
+      getDefaultMemberPayments(expense.participants || [], expense.paidBy || "");
 
-    const sharesHtml = (expense.shares || []).map((share) => {
-      const checkedAttr = memberPayments[share.name] ? "checked" : "";
-      return `
+    const sharesHtml = (expense.shares || [])
+      .map((share) => {
+        const checkedAttr = memberPayments[share.name] ? "checked" : "";
+        return `
         <div class="member-payment-item">
           <p class="split-meta">${share.name}: ${Number(share.amount).toFixed(2)}</p>
           <label class="member-paid-label">
@@ -132,7 +227,8 @@ function renderSplitExpenses() {
           </label>
         </div>
       `;
-    }).join("");
+      })
+      .join("");
 
     const paidCount = Object.values(memberPayments).filter(Boolean).length;
     const totalMembers = (expense.participants || []).length;
@@ -155,7 +251,11 @@ function renderSplitExpenses() {
 
     const deleteButton = document.createElement("button");
     deleteButton.classList.add("fa-solid", "fa-trash-can", "delete");
-    deleteButton.addEventListener("click", () => removeSplitExpense(expense.id));
+    deleteButton.addEventListener("click", () => {
+      removeSplitExpense(expense.id).catch(() => {
+        showAuthError("Could not delete split expense.");
+      });
+    });
 
     sublistContent.appendChild(deleteButton);
     splitList.appendChild(sublistContent);
@@ -163,14 +263,22 @@ function renderSplitExpenses() {
 
   splitList.querySelectorAll(".member-paid-checkbox").forEach((checkbox) => {
     checkbox.addEventListener("change", (event) => {
-      const expenseId = Number(event.target.getAttribute("data-expense-id"));
+      const expenseId = event.target.getAttribute("data-expense-id");
       const memberName = event.target.getAttribute("data-member-name");
-      updateMemberPayment(expenseId, memberName, event.target.checked);
+
+      updateMemberPayment(expenseId, memberName, event.target.checked).catch(() => {
+        showAuthError("Could not update member payment.");
+      });
     });
   });
 }
 
-splitExpenseButton.addEventListener("click", () => {
+splitExpenseButton.addEventListener("click", async () => {
+  if (!currentUser) {
+    showAuthError("Please login first.");
+    return;
+  }
+
   const title = splitTitleInput.value.trim();
   const totalAmount = Number(splitTotalAmountInput.value);
   const paidBy = splitPaidByInput.value.trim();
@@ -180,12 +288,16 @@ splitExpenseButton.addEventListener("click", () => {
 
   const invalidBaseFields = !title || !totalAmount || !paidBy || !participants.length;
   const invalidSplitValues =
-    (splitType === "exact" || splitType === "percentage") && splitValues.length !== participants.length;
-  const invalidNumberValues = splitType !== "equal" && splitValues.some((value) => Number.isNaN(value) || value < 0);
+    (splitType === "exact" || splitType === "percentage") &&
+    splitValues.length !== participants.length;
+  const invalidNumberValues =
+    splitType !== "equal" && splitValues.some((value) => Number.isNaN(value) || value < 0);
   const exactTotalMismatch =
-    splitType === "exact" && Math.abs(splitValues.reduce((sum, value) => sum + value, 0) - totalAmount) > 0.01;
+    splitType === "exact" &&
+    Math.abs(splitValues.reduce((sum, value) => sum + value, 0) - totalAmount) > 0.01;
   const percentageMismatch =
-    splitType === "percentage" && Math.abs(splitValues.reduce((sum, value) => sum + value, 0) - 100) > 0.01;
+    splitType === "percentage" &&
+    Math.abs(splitValues.reduce((sum, value) => sum + value, 0) - 100) > 0.01;
 
   if (invalidBaseFields) {
     splitExpenseError.innerText = "Please fill title, amount, paid by, and participants.";
@@ -217,17 +329,10 @@ splitExpenseButton.addEventListener("click", () => {
     return;
   }
 
-  if (splitType !== "equal" && splitValues.some((value) => Number.isNaN(value))) {
-    splitExpenseError.innerText = "Please enter valid numbers in split values.";
-    splitExpenseError.classList.remove("hide");
-    return;
-  }
-
   splitExpenseError.classList.add("hide");
   splitExpenseError.innerText = "Fill all split expense fields correctly";
 
   const splitExpense = {
-    id: Date.now(),
     type: "split",
     title,
     total_amount: totalAmount,
@@ -238,19 +343,100 @@ splitExpenseButton.addEventListener("click", () => {
     splitValues,
     shares: buildSplitShares(totalAmount, participants, splitType, splitValues),
     memberPayments: getDefaultMemberPayments(participants, paidBy),
-    date: new Date(),
+    date: new Date().toISOString(),
   };
 
-  savedExpenses.push(splitExpense);
-  saveExpenses();
-  renderSplitExpenses();
+  try {
+    const created = await addDoc(getExpensesCollectionRef(currentUser.uid), splitExpense);
+    savedExpenses.push({ id: created.id, ...splitExpense });
+    renderSplitExpenses();
 
-  splitTitleInput.value = "";
-  splitTotalAmountInput.value = "";
-  splitPaidByInput.value = "";
-  splitParticipantsInput.value = "";
-  splitValuesInput.value = "";
-  splitTypeInput.value = "equal";
+    splitTitleInput.value = "";
+    splitTotalAmountInput.value = "";
+    splitPaidByInput.value = "";
+    splitParticipantsInput.value = "";
+    splitValuesInput.value = "";
+    splitTypeInput.value = "equal";
+  } catch {
+    showAuthError("Could not save split expense.");
+  }
 });
 
-renderSplitExpenses();
+registerButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await createUserWithEmailAndPassword(
+      auth,
+      authEmail.value.trim(),
+      authPassword.value
+    );
+    authEmail.value = "";
+    authPassword.value = "";
+  } catch (error) {
+    showAuthError(error.message || "Registration failed.");
+  }
+});
+
+loginButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await signInWithEmailAndPassword(auth, authEmail.value.trim(), authPassword.value);
+    authEmail.value = "";
+    authPassword.value = "";
+  } catch (error) {
+    showAuthError(error.message || "Login failed.");
+  }
+});
+
+logoutButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await signOut(auth);
+  } catch (error) {
+    showAuthError(error.message || "Logout failed.");
+  }
+});
+
+googleLoginButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    showAuthError(error.message || "Google sign-in failed.");
+  }
+});
+
+forgotPasswordButton.addEventListener("click", async () => {
+  clearAuthError();
+  const email = getAuthEmailOrShowError();
+  if (!email) {
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showAuthError("Password reset email sent. Check your inbox.");
+  } catch (error) {
+    showAuthError(error.message || "Could not send password reset email.");
+  }
+});
+
+onAuthStateChanged(auth, async (user) => {
+  clearAuthError();
+
+  if (!user) {
+    currentUser = null;
+    savedExpenses = [];
+    setSignedOutUi();
+    return;
+  }
+
+  currentUser = user;
+  setSignedInUi(user);
+
+  try {
+    await loadExpenses(user.uid);
+  } catch {
+    showAuthError("Could not load split expenses from Firestore.");
+  }
+});

@@ -19,6 +19,70 @@ body {
   max-width: 43.75em;
   margin: 1em auto;
 }
+
+.auth-container {
+  width: 90%;
+  max-width: 43.75em;
+  margin: 1.2em auto 0;
+  padding: 1.2em;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.auth-fields input {
+  margin-bottom: 0.6em;
+}
+
+.auth-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8em;
+}
+
+.auth-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+}
+
+.google-button {
+  margin-top: 0.9em;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #4285f4, #34a853);
+}
+
+.google-button:hover {
+  background: linear-gradient(135deg, #3367d6, #2a8c46);
+}
+
+.auth-link-button {
+  margin-top: 0.6em;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.auth-link-button:hover {
+  color: #ffcc00;
+}
+
+#user-email {
+  color: #ffffff;
+  font-weight: 500;
+}
 .container {
   width: 100%;
 }
@@ -342,6 +406,13 @@ h3{
   .wrapper {
     font-size: 14px;
     
+  }
+  .auth-buttons {
+    grid-template-columns: 1fr;
+  }
+  .auth-status {
+    flex-direction: column;
+    align-items: flex-start;
   }
   .sub-container {
     grid-template-columns: 1fr;

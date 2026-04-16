@@ -1,234 +1,36 @@
-// let totalAmount = document.getElementById("total-amount");
-// let userAmount = document.getElementById("user-amount");
-// const checkAmountButton = document.getElementById("check-amount");
-// const totalAmountButton = document.getElementById("total-amount-button");
-// const productTitle = document.getElementById("product-title");
-
-// const errorMessage = document.getElementById("budget-error");
-// const productTitleError = document.getElementById("product-title-error");
-
-// const amount = document.getElementById("amount");
-// const expenditureValue = document.getElementById("expenditure-value");
-// const balanceValue = document.getElementById("balance-amount");
-// const list = document.getElementById("list");
-
-// let tempAmount = 0;
-
-// let currentMonth = new Date().getMonth();
-// let savedMonth = localStorage.getItem("month");
-
-// if (savedMonth != currentMonth) {
-//   localStorage.clear();
-//   localStorage.setItem("month", currentMonth);
-// }
-
-
-// let savedBudget = localStorage.getItem("budget");
-// let savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-
-// if (savedBudget) {
-//   tempAmount = savedBudget;
-//   amount.innerHTML = tempAmount;
-// }
-
-// function loadExpenses() {
-//   list.innerHTML = "";
-//   expenditureValue.innerText = 0;
-
-//   savedExpenses.forEach((item) => {
-//     listCreator(item.title, item.cost);
-
-//     expenditureValue.innerText =
-//       parseInt(expenditureValue.innerText) + parseInt(item.cost);
-//   });
-
-//   balanceValue.innerText = tempAmount - expenditureValue.innerText;
-// }
-
-
-// function saveExpenses() {
-//   localStorage.setItem("expenses", JSON.stringify(savedExpenses));
-// }
-
-
-// totalAmountButton.addEventListener("click", () => {
-//   tempAmount = totalAmount.value;
-
-//   if (tempAmount === "" || tempAmount < 0) {
-//     errorMessage.classList.remove("hide");
-//   } else {
-//     errorMessage.classList.add("hide");
-
-//     amount.innerHTML = tempAmount;
-
-//     balanceValue.innerText = tempAmount - expenditureValue.innerText;
-
-    
-//     localStorage.setItem("budget", tempAmount);
-
-//     totalAmount.value = "";
-//   }
-// });
-
-
-// const disableButtons = (bool) => {
-//   let editButtons = document.getElementsByClassName("edit");
-//   Array.from(editButtons).forEach((element) => {
-//     element.disabled = bool;
-//   });
-// };
-
-
-// const modifyElement = (element, edit = false) => {
-//   let parentDiv = element.parentElement;
-
-//   let parentAmount = parentDiv.querySelector(".amount").innerText;
-//   let parentText = parentDiv.querySelector(".product").innerText;
-
-//   if (edit) {
-//     productTitle.value = parentText;
-//     userAmount.value = parentAmount;
-//     disableButtons(true);
-//   }
-
-//   balanceValue.innerText =
-//     parseInt(balanceValue.innerText) + parseInt(parentAmount);
-
-//   expenditureValue.innerText =
-//     parseInt(expenditureValue.innerText) - parseInt(parentAmount);
-
-  
-//   savedExpenses = savedExpenses.filter(
-//     (item) => item.title !== parentText || item.cost !== parentAmount
-//   );
-
-//   saveExpenses();
-
-//   parentDiv.remove();
-// };
-
-// const listCreator = (expenseName, expenseValue) => {
-//   let sublistContent = document.createElement("div");
-//   sublistContent.classList.add("sublist-content", "flex-space");
-
-//   // sublistContent.innerHTML = `
-//   //   <p class="product">${expenseName}</p>
-//   //   <p class="amount">${expenseValue}</p>
-//   // `;
-
-// // Get Today's Date
-// let date = new Date();
-
-// let formattedDate = date.toLocaleDateString("en-GB", {
-//   day: "2-digit",
-//   month: "short",
-//   // year: "numeric"
-// });
-
-// sublistContent.innerHTML = `
-//   <p class="product">${expenseName}</p>
-
-//   <p class="date">${formattedDate}</p>
-
-//   <p class="amount">${expenseValue}</p>
-// `;
-
-
-
-
-
-
-//   let editButton = document.createElement("button");
-//   editButton.classList.add("fa-solid", "fa-pen-to-square", "edit");
-//   editButton.style.fontSize = "1.2em";
-
-//   editButton.addEventListener("click", () => {
-//     modifyElement(editButton, true);
-//   });
-
-//   let deleteButton = document.createElement("button");
-//   deleteButton.classList.add("fa-solid", "fa-trash-can", "delete");
-//   deleteButton.style.fontSize = "1.2em";
-
-//   deleteButton.addEventListener("click", () => {
-//     modifyElement(deleteButton);
-//   });
-
-//   sublistContent.appendChild(editButton);
-//   sublistContent.appendChild(deleteButton);
-
-//   list.appendChild(sublistContent);
-// };
-
-
-// checkAmountButton.addEventListener("click", () => {
-//   if (!userAmount.value || !productTitle.value) {
-//     productTitleError.classList.remove("hide");
-//     return false;
-//   }
-
-//   productTitleError.classList.add("hide");
-
-//   disableButtons(false);
-
-//   let expenditure = parseInt(userAmount.value);
-
-//   let sum = parseInt(expenditureValue.innerText) + expenditure;
-//   expenditureValue.innerText = sum;
-
-//   balanceValue.innerText = tempAmount - sum;
-
-
-//   listCreator(productTitle.value, userAmount.value);
-
-//   savedExpenses.push({
-//     title: productTitle.value,
-//     cost: userAmount.value,
-//   });
-
-//   saveExpenses();
-
-//   productTitle.value = "";
-//   userAmount.value = "";
-// });
-
-
-// window.onload = function () {
-//   loadExpenses();
-// };
-
-
-
-// let today = new Date();
-
-// let monthNames = [
-//   "January", "February", "March", "April",
-//   "May", "June", "July", "August",
-//   "September", "October", "November", "December"
-// ];
-
-// let month = monthNames[today.getMonth()];
-// let year = today.getFullYear();
-
-// document.getElementById("current-month").innerText = `${month}-${year}`;
-
-
-
-let totalAmount = document.getElementById("total-amount");
-let userAmount = document.getElementById("user-amount");
-
+import { auth, db } from "./firebase-config.js";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+  setDoc,
+  getDoc,
+  query,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const totalAmount = document.getElementById("total-amount");
+const userAmount = document.getElementById("user-amount");
 const checkAmountButton = document.getElementById("check-amount");
 const totalAmountButton = document.getElementById("total-amount-button");
-
 const productTitle = document.getElementById("product-title");
-
 const errorMessage = document.getElementById("budget-error");
 const productTitleError = document.getElementById("product-title-error");
-
 const amount = document.getElementById("amount");
 const expenditureValue = document.getElementById("expenditure-value");
 const balanceValue = document.getElementById("balance-amount");
-
 const list = document.getElementById("list");
 
 const advisorCard = document.getElementById("advisor-card");
@@ -236,7 +38,25 @@ const advisorTitle = document.getElementById("advisor-title");
 const advisorMessage = document.getElementById("advisor-message");
 const advisorTips = document.getElementById("advisor-tips");
 
+const authError = document.getElementById("auth-error");
+const authEmail = document.getElementById("auth-email");
+const authPassword = document.getElementById("auth-password");
+const registerButton = document.getElementById("register-button");
+const loginButton = document.getElementById("login-button");
+const googleLoginButton = document.getElementById("google-login-button");
+const forgotPasswordButton = document.getElementById("forgot-password-button");
+const logoutButton = document.getElementById("logout-button");
+const authFields = document.getElementById("auth-fields");
+const authStatus = document.getElementById("auth-status");
+const userEmail = document.getElementById("user-email");
+const appShell = document.getElementById("app-shell");
+
 let tempAmount = 0;
+let savedExpenses = [];
+let currentUser = null;
+let editingExpenseId = null;
+let expenseChart = null;
+const googleProvider = new GoogleAuthProvider();
 
 const foodKeywords = [
   "fast food",
@@ -255,7 +75,7 @@ const foodKeywords = [
   "roll",
   "cola",
   "soft drink",
-  "junk food"
+  "junk food",
 ];
 
 function getExpenseAmount(expense) {
@@ -273,8 +93,72 @@ function getNormalizedExpense(expense) {
 }
 
 function isFoodExpense(title) {
-  const normalizedTitle = title.toLowerCase();
+  const normalizedTitle = (title || "").toLowerCase();
   return foodKeywords.some((keyword) => normalizedTitle.includes(keyword));
+}
+
+function showAuthError(message) {
+  authError.innerText = message;
+  authError.classList.remove("hide");
+}
+
+function clearAuthError() {
+  authError.classList.add("hide");
+}
+
+function getAuthEmailOrShowError() {
+  const email = authEmail.value.trim();
+  if (!email) {
+    showAuthError("Enter your email first, then click forgot password.");
+    return "";
+  }
+  return email;
+}
+
+function setSignedInUi(user) {
+  authFields.classList.add("hide");
+  authStatus.classList.remove("hide");
+  appShell.classList.remove("hide");
+  userEmail.innerText = user.email || "Logged in";
+}
+
+function setSignedOutUi() {
+  authFields.classList.remove("hide");
+  authStatus.classList.add("hide");
+  appShell.classList.add("hide");
+  userEmail.innerText = "";
+}
+
+function getBudgetDocRef(uid) {
+  return doc(db, "users", uid, "meta", "budget");
+}
+
+function getExpensesCollectionRef(uid) {
+  return collection(db, "users", uid, "expenses");
+}
+
+async function loadBudgetAndExpenses(uid) {
+  const budgetDoc = await getDoc(getBudgetDocRef(uid));
+  tempAmount = budgetDoc.exists() ? Number(budgetDoc.data().amount || 0) : 0;
+  amount.innerText = tempAmount;
+
+  const expensesQuery = query(getExpensesCollectionRef(uid), orderBy("date", "desc"));
+  const snapshot = await getDocs(expensesQuery);
+
+  savedExpenses = snapshot.docs.map((entry) => ({
+    id: entry.id,
+    ...entry.data(),
+  }));
+
+  loadExpenses();
+}
+
+async function saveBudget() {
+  if (!currentUser) {
+    return;
+  }
+
+  await setDoc(getBudgetDocRef(currentUser.uid), { amount: Number(tempAmount) });
 }
 
 function renderAdvisor(state) {
@@ -292,275 +176,128 @@ function renderAdvisor(state) {
   });
 }
 
-/* ===============================
-   MONTH AUTO RESET SYSTEM
-================================= */
-
-let currentMonth = new Date().getMonth();
-let savedMonth = localStorage.getItem("month");
-
-if (savedMonth != currentMonth) {
-  localStorage.clear();
-  localStorage.setItem("month", currentMonth);
-}
-
-/* ===============================
-   LOAD SAVED DATA
-================================= */
-
-let savedBudget = localStorage.getItem("budget");
-let savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-
-if (savedBudget) {
-  tempAmount = savedBudget;
-  amount.innerHTML = tempAmount;
-}
-
-/* ===============================
-   SAVE EXPENSES FUNCTION
-================================= */
-
-function saveExpenses() {
-  localStorage.setItem("expenses", JSON.stringify(savedExpenses));
-}
-
-/* ===============================
-   LOAD EXPENSE LIST FUNCTION
-================================= */
-
-function loadExpenses() {
-  list.innerHTML = "";
-  expenditureValue.innerText = 0;
-
-  savedExpenses.forEach((item) => {
-    const normalizedItem = getNormalizedExpense(item);
-    listCreator(normalizedItem);
-
-    expenditureValue.innerText =
-      Number(expenditureValue.innerText) + getExpenseAmount(normalizedItem);
-  });
-
-  balanceValue.innerText = tempAmount - expenditureValue.innerText;
-  updateAllAnalytics();
-}
-
-/* ===============================
-   SET BUDGET BUTTON
-================================= */
-
-totalAmountButton.addEventListener("click", () => {
-  tempAmount = totalAmount.value;
-
-  if (tempAmount === "" || tempAmount < 0) {
-    errorMessage.classList.remove("hide");
-  } else {
-    errorMessage.classList.add("hide");
-
-    amount.innerHTML = tempAmount;
-
-    balanceValue.innerText = tempAmount - expenditureValue.innerText;
-
-    localStorage.setItem("budget", tempAmount);
-
-    totalAmount.value = "";
-  }
-});
-
-/* ===============================
-   DISABLE EDIT BUTTONS
-================================= */
-
-const disableButtons = (bool) => {
-  let editButtons = document.getElementsByClassName("edit");
-
+function disableButtons(bool) {
+  const editButtons = document.getElementsByClassName("edit");
   Array.from(editButtons).forEach((element) => {
     element.disabled = bool;
   });
-};
+}
 
-/* ===============================
-   DELETE / EDIT FUNCTION
-================================= */
-
-const modifyElement = (id, edit = false) => {
-  let expenseItem = savedExpenses.find((item) => item.id === id);
-
-  if (!expenseItem) return;
-
-  expenseItem = getNormalizedExpense(expenseItem);
-
-  if (edit) {
-    productTitle.value = expenseItem.title;
-    userAmount.value = getExpenseAmount(expenseItem);
-
-    disableButtons(true);
+async function removeExpense(id) {
+  if (!currentUser) {
+    return;
   }
+
+  const expenseItem = savedExpenses.find((item) => item.id === id);
+  if (!expenseItem) {
+    return;
+  }
+
+  await deleteDoc(doc(db, "users", currentUser.uid, "expenses", id));
+
+  savedExpenses = savedExpenses.filter((item) => item.id !== id);
 
   expenditureValue.innerText =
     Number(expenditureValue.innerText) - getExpenseAmount(expenseItem);
+  balanceValue.innerText = Number(tempAmount) - Number(expenditureValue.innerText);
 
-  balanceValue.innerText =
-    Number(balanceValue.innerText) + getExpenseAmount(expenseItem);
-
-  // Remove from Array
-  savedExpenses = savedExpenses.filter((item) => item.id !== id);
-
-  saveExpenses();
-
-  // Remove from UI
   const expenseElement = document.querySelector(`[data-id="${id}"]`);
   if (expenseElement) {
     expenseElement.remove();
   }
 
   updateAllAnalytics();
-};
+}
 
-/* ===============================
-   CREATE EXPENSE LIST ITEM
-================================= */
+function editExpense(id) {
+  const expenseItem = savedExpenses.find((item) => item.id === id);
+  if (!expenseItem || expenseItem.type === "split") {
+    return;
+  }
 
-const listCreator = (expenseObj) => {
-  let sublistContent = document.createElement("div");
+  productTitle.value = expenseItem.title || "";
+  userAmount.value = getExpenseAmount(expenseItem);
+  editingExpenseId = id;
+  checkAmountButton.innerText = "Update Amount";
+  disableButtons(true);
+}
+
+function listCreator(expenseObj) {
+  const sublistContent = document.createElement("div");
   sublistContent.classList.add("sublist-content");
-
   sublistContent.setAttribute("data-id", expenseObj.id);
 
   const amountValue = getExpenseAmount(expenseObj);
-
-  // Date Format
-  let formattedDate = new Date(expenseObj.date).toLocaleDateString("en-GB", {
+  const formattedDate = new Date(expenseObj.date).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
   });
 
-  const splitInfo = expenseObj.type === "split"
-    ? `
+  const splitInfo =
+    expenseObj.type === "split"
+      ? `
       <div class="split-details">
         <p class="split-meta">Paid by ${expenseObj.paidBy}</p>
         <p class="split-meta">Split type: ${expenseObj.splitType}</p>
         <p class="split-meta">${(expenseObj.participants || []).length} people</p>
-        ${(expenseObj.shares || []).map((share) => `<p class="split-meta">${share.name}: ${Number(share.amount).toFixed(2)}</p>`).join("")}
+        ${(expenseObj.shares || [])
+          .map((share) => `<p class="split-meta">${share.name}: ${Number(share.amount).toFixed(2)}</p>`)
+          .join("")}
       </div>
     `
-    : "";
+      : "";
 
   sublistContent.innerHTML = `
     <div class="expense-title-block">
       <p class="product">${expenseObj.title}</p>
-      ${expenseObj.type === "split" ? '<span class="split-badge">Split</span>' : ''}
+      ${expenseObj.type === "split" ? '<span class="split-badge">Split</span>' : ""}
     </div>
     <p class="date">${formattedDate}</p>
     <p class="amount">${amountValue}</p>
     ${splitInfo}
   `;
 
-  // Edit Button
-  let editButton = document.createElement("button");
+  const editButton = document.createElement("button");
   editButton.classList.add("fa-solid", "fa-pen-to-square", "edit");
 
   if (expenseObj.type !== "split") {
-    editButton.addEventListener("click", () => {
-      modifyElement(expenseObj.id, true);
-    });
+    editButton.addEventListener("click", () => editExpense(expenseObj.id));
   } else {
     editButton.disabled = true;
     editButton.title = "Split expenses can be deleted, not edited inline";
   }
 
-  // Delete Button
-  let deleteButton = document.createElement("button");
+  const deleteButton = document.createElement("button");
   deleteButton.classList.add("fa-solid", "fa-trash-can", "delete");
-
   deleteButton.addEventListener("click", () => {
-    modifyElement(expenseObj.id);
+    removeExpense(expenseObj.id).catch(() => {
+      showAuthError("Could not delete expense. Please try again.");
+    });
   });
 
   sublistContent.appendChild(editButton);
   sublistContent.appendChild(deleteButton);
-
   list.appendChild(sublistContent);
-};
+}
 
-/* ===============================
-   ADD EXPENSE BUTTON
-================================= */
+function loadExpenses() {
+  list.innerHTML = "";
+  expenditureValue.innerText = 0;
 
-checkAmountButton.addEventListener("click", () => {
-  if (!userAmount.value || !productTitle.value) {
-    productTitleError.classList.remove("hide");
-    return false;
-  }
+  savedExpenses
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .forEach((item) => {
+      const normalizedItem = getNormalizedExpense(item);
+      listCreator(normalizedItem);
+      expenditureValue.innerText =
+        Number(expenditureValue.innerText) + getExpenseAmount(normalizedItem);
+    });
 
-  productTitleError.classList.add("hide");
-
-  disableButtons(false);
-
-  let expenditure = Number(userAmount.value);
-
-  expenditureValue.innerText =
-    Number(expenditureValue.innerText) + expenditure;
-
-  balanceValue.innerText = tempAmount - expenditureValue.innerText;
-
-  // Create Expense Object with Unique ID
-  let newExpense = {
-    id: Date.now(),
-    type: "normal",
-    title: productTitle.value,
-    cost: userAmount.value,
-    date: new Date(),
-  };
-
-  // Save into Array
-  savedExpenses.push(newExpense);
-
-  // Save into LocalStorage
-  saveExpenses();
-
-  // Show in UI
-  listCreator(newExpense);
-
-  // Update analytics
+  balanceValue.innerText = Number(tempAmount) - Number(expenditureValue.innerText);
   updateAllAnalytics();
+}
 
-  updateAdvisorForExpense(newExpense);
-
-  // Clear Input Fields
-  productTitle.value = "";
-  userAmount.value = "";
-});
-
-/* ===============================
-   ON PAGE LOAD
-================================= */
-
-window.onload = function () {
-  loadExpenses();
-};
-
-/* ===============================
-   SHOW CURRENT MONTH HEADING
-================================= */
-
-let today = new Date();
-
-let monthNames = [
-  "January", "February", "March", "April",
-  "May", "June", "July", "August",
-  "September", "October", "November", "December"
-];
-
-let month = monthNames[today.getMonth()];
-let year = today.getFullYear();
-
-document.getElementById("current-month").innerText = `${month}-${year}`;
-
-/* ===============================
-   ANALYTICS FUNCTIONS
-================================= */
-
-// Get spending for a specific date
 function getSpendingByDate(date) {
   const dateString = new Date(date).toDateString();
   return savedExpenses
@@ -568,65 +305,20 @@ function getSpendingByDate(date) {
     .reduce((sum, item) => sum + getExpenseAmount(item), 0);
 }
 
-// Get all unique dates with spending data
 function getUniqueDates() {
   const dates = {};
-  savedExpenses.forEach(item => {
+  savedExpenses.forEach((item) => {
     const dateString = new Date(item.date).toDateString();
     if (!dates[dateString]) {
       dates[dateString] = true;
     }
   });
+
   return Object.keys(dates)
-    .map(dateString => new Date(dateString))
+    .map((dateString) => new Date(dateString))
     .sort((a, b) => a - b);
 }
 
-// Calculate analytics and update display
-function updateAnalytics() {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const todaySpending = getSpendingByDate(today);
-  const yesterdaySpending = getSpendingByDate(yesterday);
-
-  // Update spending values
-  document.getElementById("today-spending").innerText = todaySpending;
-  document.getElementById("yesterday-spending").innerText = yesterdaySpending;
-
-  // Calculate daily average
-  const uniqueDates = getUniqueDates();
-  const dailyAverage = uniqueDates.length > 0 
-    ? Math.round(Number(expenditureValue.innerText) / uniqueDates.length) 
-    : 0;
-  document.getElementById("daily-average").innerText = dailyAverage;
-
-  // Calculate spending trend
-  const trendElement = document.getElementById("spending-trend");
-  if (yesterdaySpending === 0 && todaySpending > 0) {
-    trendElement.innerText = "📈 New Day";
-  } else if (todaySpending > yesterdaySpending) {
-    const increase = Math.round(((todaySpending - yesterdaySpending) / yesterdaySpending) * 100);
-    trendElement.innerText = `📈 +${increase}%`;
-    trendElement.style.color = "#ff6348";
-  } else if (todaySpending < yesterdaySpending && yesterdaySpending > 0) {
-    const decrease = Math.round(((yesterdaySpending - todaySpending) / yesterdaySpending) * 100);
-    trendElement.innerText = `📉 -${decrease}%`;
-    trendElement.style.color = "#2ecc71";
-  } else {
-    trendElement.innerText = "➡️ Stable";
-    trendElement.style.color = "#ffcc00";
-  }
-
-  // Check spending alert
-  checkSpendingAlert(todaySpending, yesterdaySpending);
-
-  // Update chart
-  updateExpenseChart();
-}
-
-// Check if user spent more today than yesterday
 function checkSpendingAlert(todaySpending, yesterdaySpending) {
   const alertContainer = document.getElementById("spending-alert");
   const alertMessage = document.getElementById("alert-message");
@@ -634,36 +326,35 @@ function checkSpendingAlert(todaySpending, yesterdaySpending) {
   if (yesterdaySpending > 0 && todaySpending > yesterdaySpending) {
     const difference = todaySpending - yesterdaySpending;
     const percentage = Math.round((difference / yesterdaySpending) * 100);
-    alertMessage.innerText = `You spent ₹${difference} (${percentage}%) more than yesterday!`;
+    alertMessage.innerText = `You spent Rs ${difference} (${percentage}%) more than yesterday!`;
     alertContainer.classList.remove("hide");
   } else {
     alertContainer.classList.add("hide");
   }
 }
 
-// Create and update the expense chart
-let expenseChart = null;
-
 function updateExpenseChart() {
-  const uniqueDates = getUniqueDates();
   const last14Days = [];
-  const today = new Date();
+  const todayDate = new Date();
 
-  // Get last 14 days
-  for (let i = 13; i >= 0; i--) {
-    const date = new Date(today);
+  for (let i = 13; i >= 0; i -= 1) {
+    const date = new Date(todayDate);
     date.setDate(date.getDate() - i);
     last14Days.push(date);
   }
 
-  const labels = last14Days.map(date => 
+  const labels = last14Days.map((date) =>
     date.toLocaleDateString("en-GB", { month: "short", day: "numeric" })
   );
 
-  const data = last14Days.map(date => getSpendingByDate(date));
+  const data = last14Days.map((date) => getSpendingByDate(date));
 
-  const ctx = document.getElementById("expenseChart").getContext("2d");
+  const canvas = document.getElementById("expenseChart");
+  if (!canvas) {
+    return;
+  }
 
+  const ctx = canvas.getContext("2d");
   if (expenseChart) {
     expenseChart.destroy();
   }
@@ -671,11 +362,11 @@ function updateExpenseChart() {
   expenseChart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: labels,
+      labels,
       datasets: [
         {
           label: "Daily Expenses",
-          data: data,
+          data,
           borderColor: "#ffcc00",
           backgroundColor: "rgba(255, 204, 0, 0.1)",
           borderWidth: 2.5,
@@ -687,8 +378,8 @@ function updateExpenseChart() {
           pointBorderWidth: 2,
           pointHoverRadius: 7,
           pointHoverBackgroundColor: "#ff8800",
-        }
-      ]
+        },
+      ],
     },
     options: {
       responsive: true,
@@ -699,9 +390,9 @@ function updateExpenseChart() {
             color: "#ffcc00",
             font: {
               size: 12,
-              weight: "600"
-            }
-          }
+              weight: "600",
+            },
+          },
         },
         tooltip: {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
@@ -712,42 +403,79 @@ function updateExpenseChart() {
           padding: 12,
           displayColors: false,
           callbacks: {
-            label: function(context) {
-              return `Spending: ₹${context.parsed.y}`;
-            }
-          }
-        }
+            label(context) {
+              return `Spending: Rs ${context.parsed.y}`;
+            },
+          },
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
           grid: {
-            color: "rgba(255, 255, 255, 0.1)"
+            color: "rgba(255, 255, 255, 0.1)",
           },
           ticks: {
             color: "#ffcc00",
-            callback: function(value) {
-              return "₹" + value;
-            }
-          }
+            callback(value) {
+              return "Rs " + value;
+            },
+          },
         },
         x: {
           grid: {
-            display: false
+            display: false,
           },
           ticks: {
-            color: "rgba(255, 255, 255, 0.8)"
-          }
-        }
-      }
-    }
+            color: "rgba(255, 255, 255, 0.8)",
+          },
+        },
+      },
+    },
   });
 }
 
-// Update analytics when expenses change
-function updateAllAnalytics() {
-  updateAnalytics();
-  updateAdvisorForExpense();
+function updateAnalytics() {
+  const todayDate = new Date();
+  const yesterday = new Date(todayDate);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const todaySpending = getSpendingByDate(todayDate);
+  const yesterdaySpending = getSpendingByDate(yesterday);
+
+  document.getElementById("today-spending").innerText = todaySpending;
+  document.getElementById("yesterday-spending").innerText = yesterdaySpending;
+
+  const uniqueDates = getUniqueDates();
+  const dailyAverage =
+    uniqueDates.length > 0
+      ? Math.round(Number(expenditureValue.innerText) / uniqueDates.length)
+      : 0;
+
+  document.getElementById("daily-average").innerText = dailyAverage;
+
+  const trendElement = document.getElementById("spending-trend");
+  if (yesterdaySpending === 0 && todaySpending > 0) {
+    trendElement.innerText = "New Day";
+  } else if (todaySpending > yesterdaySpending && yesterdaySpending > 0) {
+    const increase = Math.round(
+      ((todaySpending - yesterdaySpending) / yesterdaySpending) * 100
+    );
+    trendElement.innerText = `+${increase}%`;
+    trendElement.style.color = "#ff6348";
+  } else if (todaySpending < yesterdaySpending && yesterdaySpending > 0) {
+    const decrease = Math.round(
+      ((yesterdaySpending - todaySpending) / yesterdaySpending) * 100
+    );
+    trendElement.innerText = `-${decrease}%`;
+    trendElement.style.color = "#2ecc71";
+  } else {
+    trendElement.innerText = "Stable";
+    trendElement.style.color = "#ffcc00";
+  }
+
+  checkSpendingAlert(todaySpending, yesterdaySpending);
+  updateExpenseChart();
 }
 
 function updateAdvisorForExpense() {
@@ -763,8 +491,8 @@ function updateAdvisorForExpense() {
         "Set a weekly food budget and track it separately.",
         "Cook at home for at least 3 meals a week.",
         "If you order out, compare prices before checkout.",
-        "Use split expenses only for planned group meals."
-      ]
+        "Use split expenses only for planned group meals.",
+      ],
     });
     return;
   }
@@ -772,13 +500,190 @@ function updateAdvisorForExpense() {
   renderAdvisor({
     level: "safe",
     title: "Spending looks balanced",
-    message: "No oily food or fast-food pattern detected in your saved expenses right now.",
+    message:
+      "No oily food or fast-food pattern detected in your saved expenses right now.",
     tips: [
       "Keep a 10% buffer for monthly savings.",
       "Review weekly expenses before adding new purchases.",
       "Use split expenses to divide shared costs fairly.",
-      "Move small impulse buys into a separate food or misc budget."
-    ]
+      "Move small impulse buys into a separate food or misc budget.",
+    ],
   });
 }
 
+function updateAllAnalytics() {
+  updateAnalytics();
+  updateAdvisorForExpense();
+}
+
+registerButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await createUserWithEmailAndPassword(
+      auth,
+      authEmail.value.trim(),
+      authPassword.value
+    );
+    authEmail.value = "";
+    authPassword.value = "";
+  } catch (error) {
+    showAuthError(error.message || "Registration failed.");
+  }
+});
+
+loginButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await signInWithEmailAndPassword(auth, authEmail.value.trim(), authPassword.value);
+    authEmail.value = "";
+    authPassword.value = "";
+  } catch (error) {
+    showAuthError(error.message || "Login failed.");
+  }
+});
+
+logoutButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await signOut(auth);
+  } catch (error) {
+    showAuthError(error.message || "Logout failed.");
+  }
+});
+
+googleLoginButton.addEventListener("click", async () => {
+  clearAuthError();
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    showAuthError(error.message || "Google sign-in failed.");
+  }
+});
+
+forgotPasswordButton.addEventListener("click", async () => {
+  clearAuthError();
+  const email = getAuthEmailOrShowError();
+  if (!email) {
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showAuthError("Password reset email sent. Check your inbox.");
+  } catch (error) {
+    showAuthError(error.message || "Could not send password reset email.");
+  }
+});
+
+totalAmountButton.addEventListener("click", async () => {
+  tempAmount = Number(totalAmount.value);
+
+  if (!Number.isFinite(tempAmount) || tempAmount < 0) {
+    errorMessage.classList.remove("hide");
+    return;
+  }
+
+  errorMessage.classList.add("hide");
+  amount.innerText = tempAmount;
+  balanceValue.innerText = Number(tempAmount) - Number(expenditureValue.innerText);
+  totalAmount.value = "";
+
+  try {
+    await saveBudget();
+  } catch {
+    showAuthError("Could not save budget. Please try again.");
+  }
+});
+
+checkAmountButton.addEventListener("click", async () => {
+  if (!userAmount.value || !productTitle.value) {
+    productTitleError.classList.remove("hide");
+    return;
+  }
+
+  if (!currentUser) {
+    showAuthError("Please login first.");
+    return;
+  }
+
+  productTitleError.classList.add("hide");
+
+  const expenditure = Number(userAmount.value);
+  if (!Number.isFinite(expenditure) || expenditure <= 0) {
+    productTitleError.innerText = "Amount must be greater than zero";
+    productTitleError.classList.remove("hide");
+    return;
+  }
+
+  const payload = {
+    type: "normal",
+    title: productTitle.value.trim(),
+    cost: expenditure,
+    date: new Date().toISOString(),
+  };
+
+  try {
+    if (editingExpenseId) {
+      await updateDoc(doc(db, "users", currentUser.uid, "expenses", editingExpenseId), payload);
+      savedExpenses = savedExpenses.map((item) =>
+        item.id === editingExpenseId ? { ...item, ...payload } : item
+      );
+      editingExpenseId = null;
+      checkAmountButton.innerText = "Check Amount";
+      disableButtons(false);
+    } else {
+      const added = await addDoc(getExpensesCollectionRef(currentUser.uid), payload);
+      savedExpenses.push({ id: added.id, ...payload });
+    }
+
+    userAmount.value = "";
+    productTitle.value = "";
+    loadExpenses();
+  } catch {
+    showAuthError("Could not save expense. Please try again.");
+  }
+});
+
+onAuthStateChanged(auth, async (user) => {
+  clearAuthError();
+
+  if (!user) {
+    currentUser = null;
+    savedExpenses = [];
+    tempAmount = 0;
+    amount.innerText = 0;
+    expenditureValue.innerText = 0;
+    balanceValue.innerText = 0;
+    list.innerHTML = "";
+    setSignedOutUi();
+    return;
+  }
+
+  currentUser = user;
+  setSignedInUi(user);
+
+  try {
+    await loadBudgetAndExpenses(user.uid);
+  } catch {
+    showAuthError("Could not load your data from Firestore.");
+  }
+});
+
+const today = new Date();
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+document.getElementById("current-month").innerText =
+  `${monthNames[today.getMonth()]}-${today.getFullYear()}`;
