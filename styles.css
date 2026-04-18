@@ -104,8 +104,25 @@ body::after {
   letter-spacing: 0.01em;
 }
 
+.autofill-guard {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .auth-fields input {
   margin-bottom: 0.7rem;
+}
+
+.input-help-text {
+  margin-top: -0.28rem;
+  margin-bottom: 0.62rem;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
 }
 
 .auth-buttons {
@@ -119,11 +136,73 @@ body::after {
   justify-content: space-between;
   align-items: center;
   gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+#user-name {
+  color: var(--ink);
+  font-family: "Sora", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 #user-email {
-  color: var(--ink);
+  color: var(--ink-soft);
   font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.user-profile-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.user-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.profile-edit {
+  margin-top: 0.82rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(24, 37, 61, 0.12);
+}
+
+.profile-edit-title {
+  color: var(--ink);
+  font-family: "Sora", sans-serif;
+  font-size: 0.93rem;
+  margin-bottom: 0.55rem;
+}
+
+.home-profile-bar {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--stroke);
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.4));
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  box-shadow: var(--shadow-lg);
+}
+
+.home-welcome {
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  margin-bottom: 0.1rem;
+}
+
+#home-user-name {
+  color: var(--ink);
+  font-family: "Sora", sans-serif;
+  font-size: 1.08rem;
+  font-weight: 700;
 }
 
 .auth-link-button {
@@ -250,6 +329,11 @@ body::after {
 .submit.secondary {
   background: linear-gradient(135deg, #2ed0b0, var(--accent-2));
   box-shadow: 0 10px 22px rgba(23, 188, 151, 0.35);
+}
+
+.submit.danger {
+  background: linear-gradient(135deg, #ff7f70, #ef4d63);
+  box-shadow: 0 10px 22px rgba(239, 77, 99, 0.36);
 }
 
 .google-button {
@@ -680,6 +764,15 @@ footer {
   .page-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .home-profile-bar {
+    padding: 0.82rem;
+  }
+
+  .user-avatar {
+    width: 48px;
+    height: 48px;
   }
 
   .output-container {

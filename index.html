@@ -22,10 +22,30 @@
   <body>
     <div class="auth-container">
       <h3>Account</h3>
+      <div class="autofill-guard" aria-hidden="true">
+        <input type="text" tabindex="-1" autocomplete="username" />
+        <input type="password" tabindex="-1" autocomplete="current-password" />
+      </div>
       <p class="hide error" id="auth-error">Authentication failed</p>
       <div class="auth-fields" id="auth-fields">
-        <input type="email" id="auth-email" placeholder="Email" />
-        <input type="password" id="auth-password" placeholder="Password" />
+        <input
+          type="text"
+          id="auth-name"
+          name="register-display-name"
+          autocomplete="off"
+          readonly
+          placeholder="Full name (for new account)"
+        />
+        <input type="file" id="auth-photo-file" accept="image/*" />
+        <p class="input-help-text">Choose profile picture from gallery (optional)</p>
+        <input type="email" id="auth-email" name="email" autocomplete="email" placeholder="Email" />
+        <input
+          type="password"
+          id="auth-password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="Password"
+        />
         <div class="auth-buttons">
           <button class="submit" id="register-button">Register</button>
           <button class="submit secondary" id="login-button">Login</button>
@@ -39,12 +59,39 @@
         </button>
       </div>
       <div class="auth-status hide" id="auth-status">
-        <p id="user-email"></p>
+        <div class="user-profile-inline">
+          <img id="user-avatar" class="user-avatar" alt="Profile picture" />
+          <div>
+            <p id="user-name"></p>
+            <p id="user-email"></p>
+          </div>
+        </div>
+        <button class="submit secondary" id="edit-profile-button">Edit Profile</button>
         <button class="submit" id="logout-button">Logout</button>
+        <button class="submit danger" id="delete-account-button" type="button">Delete Account</button>
+      </div>
+      <div class="hide profile-edit" id="profile-edit-form">
+        <p class="profile-edit-title">Update Profile</p>
+        <input type="text" id="profile-name" name="profile-name" autocomplete="name" placeholder="Full name" />
+        <input type="file" id="profile-photo-file" accept="image/*" />
+        <p class="input-help-text">Select a new picture from gallery (optional)</p>
+        <div class="auth-buttons">
+          <button class="submit secondary" id="save-profile-button" type="button">Save Profile</button>
+          <button class="submit" id="cancel-profile-button" type="button">Cancel</button>
+        </div>
       </div>
     </div>
 
     <div class="wrapper hide" id="app-shell">
+      <div class="home-profile-bar">
+        <div class="user-profile-inline">
+          <img id="home-user-avatar" class="user-avatar" alt="Profile picture" />
+          <div>
+            <p class="home-welcome">Welcome</p>
+            <p id="home-user-name"></p>
+          </div>
+        </div>
+      </div>
       <div class="container">
         <div class="sub-container">
           <!-- Budget -->

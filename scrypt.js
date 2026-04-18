@@ -3,7 +3,9 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  deleteUser,
   onAuthStateChanged,
+  updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail,
@@ -39,6 +41,8 @@ const advisorMessage = document.getElementById("advisor-message");
 const advisorTips = document.getElementById("advisor-tips");
 
 const authError = document.getElementById("auth-error");
+const authName = document.getElementById("auth-name");
+const authPhotoFile = document.getElementById("auth-photo-file");
 const authEmail = document.getElementById("auth-email");
 const authPassword = document.getElementById("auth-password");
 const registerButton = document.getElementById("register-button");
@@ -46,9 +50,20 @@ const loginButton = document.getElementById("login-button");
 const googleLoginButton = document.getElementById("google-login-button");
 const forgotPasswordButton = document.getElementById("forgot-password-button");
 const logoutButton = document.getElementById("logout-button");
+const deleteAccountButton = document.getElementById("delete-account-button");
+const editProfileButton = document.getElementById("edit-profile-button");
+const saveProfileButton = document.getElementById("save-profile-button");
+const cancelProfileButton = document.getElementById("cancel-profile-button");
 const authFields = document.getElementById("auth-fields");
 const authStatus = document.getElementById("auth-status");
+const profileEditForm = document.getElementById("profile-edit-form");
+const profileNameInput = document.getElementById("profile-name");
+const profilePhotoFile = document.getElementById("profile-photo-file");
+const userAvatar = document.getElementById("user-avatar");
+const homeUserAvatar = document.getElementById("home-user-avatar");
+const userName = document.getElementById("user-name");
 const userEmail = document.getElementById("user-email");
+const homeUserName = document.getElementById("home-user-name");
 const appShell = document.getElementById("app-shell");
 
 let tempAmount = 0;
@@ -57,6 +72,25 @@ let currentUser = null;
 let editingExpenseId = null;
 let expenseChart = null;
 const googleProvider = new GoogleAuthProvider();
+const defaultProfilePhoto =
+  "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f464.png";
+
+function unlockNameInput() {
+  authName.removeAttribute("readonly");
+}
+
+authName.addEventListener("pointerdown", unlockNameInput);
+authName.addEventListener("focus", unlockNameInput);
+
+window.addEventListener("pageshow", () => {
+  // Some browsers rehydrate autofill after refresh; force-clear auth fields in signed-out view.
+  if (!currentUser) {
+    authName.value = "";
+    authEmail.value = "";
+    authPassword.value = "";
+    authPhotoFile.value = "";
+  }
+});
 
 const foodKeywords = [
   "fast food",
@@ -106,6 +140,179 @@ function clearAuthError() {
   authError.classList.add("hide");
 }
 
+function getProfileDocRef(uid) {
+  return doc(db, "users", uid, "meta", "profile");
+}
+
+function getDisplayName(user, profileData) {
+  const docName = (profileData?.displayName || "").trim();
+  if (docName) {
+    return docName;
+  }
+
+  const authNameValue = (user?.displayName || "").trim();
+  if (authNameValue) {
+    return authNameValue;
+  }
+
+  const emailPrefix = (user?.email || "").split("@")[0];
+  return emailPrefix || "User";
+}
+
+function getPhotoUrl(user, profileData) {
+  const uploadedPhoto = (profileData?.photoDataUrl || "").trim();
+  if (uploadedPhoto) {
+    return uploadedPhoto;
+  }
+
+  const docPhoto = (profileData?.photoURL || "").trim();
+  if (docPhoto) {
+    return docPhoto;
+  }
+
+  const authPhoto = (user?.photoURL || "").trim();
+  if (authPhoto) {
+    return authPhoto;
+  }
+
+  return defaultProfilePhoto;
+}
+
+function applyProfileToUi(profile) {
+  userName.innerText = profile.displayName;
+  userEmail.innerText = profile.email || "";
+  homeUserName.innerText = profile.displayName;
+  userAvatar.src = profile.photoURL;
+  homeUserAvatar.src = profile.photoURL;
+}
+
+function setProfileEditVisibility(showEdit) {
+  if (showEdit) {
+    profileEditForm.classList.remove("hide");
+  } else {
+    profileEditForm.classList.add("hide");
+  }
+}
+
+async function saveUserProfile(uid, profileData) {
+  await setDoc(
+    getProfileDocRef(uid),
+    {
+      displayName: profileData.displayName || "",
+      photoURL: profileData.photoURL || "",
+      photoDataUrl: profileData.photoDataUrl || "",
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
+}
+
+async function getUserProfile(user) {
+  const profileDoc = await getDoc(getProfileDocRef(user.uid));
+  const profileData = profileDoc.exists() ? profileDoc.data() : {};
+
+  return {
+    displayName: getDisplayName(user, profileData),
+    email: user.email || "",
+    photoDataUrl: (profileData?.photoDataUrl || "").trim(),
+    rawPhotoURL: (profileData?.photoURL || "").trim(),
+    photoURL: getPhotoUrl(user, profileData),
+  };
+}
+
+async function ensureProfileSynced(user) {
+  const profile = await getUserProfile(user);
+
+  const authPhotoValue = profile.photoDataUrl
+    ? user.photoURL || ""
+    : profile.rawPhotoURL || (profile.photoURL === defaultProfilePhoto ? "" : profile.photoURL);
+
+  const needsAuthProfileSync =
+    (user.displayName || "") !== profile.displayName ||
+    (user.photoURL || "") !== authPhotoValue;
+
+  if (needsAuthProfileSync) {
+    await updateProfile(user, {
+      displayName: profile.displayName,
+      photoURL: authPhotoValue,
+    });
+  }
+
+  await saveUserProfile(user.uid, {
+    displayName: profile.displayName,
+    photoURL: profile.rawPhotoURL || (profile.photoDataUrl ? "" : authPhotoValue),
+    photoDataUrl: profile.photoDataUrl,
+  });
+
+  return {
+    ...profile,
+    photoURL: profile.photoURL || defaultProfilePhoto,
+  };
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read selected image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImageFromDataUrl(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Selected file is not a valid image."));
+    image.src = dataUrl;
+  });
+}
+
+async function getCompressedProfilePhoto(file) {
+  if (!file) {
+    return "";
+  }
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Please choose a valid image file.");
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error("Image is too large. Please choose an image under 10MB.");
+  }
+
+  const rawDataUrl = await readFileAsDataUrl(file);
+  const image = await loadImageFromDataUrl(rawDataUrl);
+
+  const maxSide = 360;
+  const largestSide = Math.max(image.width, image.height);
+  const ratio = largestSide > maxSide ? maxSide / largestSide : 1;
+  const width = Math.max(1, Math.round(image.width * ratio));
+  const height = Math.max(1, Math.round(image.height * ratio));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    throw new Error("Could not process image. Please try again.");
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+
+  let compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+  if (compressedDataUrl.length > 850000) {
+    compressedDataUrl = canvas.toDataURL("image/jpeg", 0.65);
+  }
+
+  if (compressedDataUrl.length > 980000) {
+    throw new Error("Image is too large after compression. Please use a smaller image.");
+  }
+
+  return compressedDataUrl;
+}
+
 function getAuthEmailOrShowError() {
   const email = authEmail.value.trim();
   if (!email) {
@@ -115,18 +322,30 @@ function getAuthEmailOrShowError() {
   return email;
 }
 
-function setSignedInUi(user) {
+function setSignedInUi(profile) {
   authFields.classList.add("hide");
   authStatus.classList.remove("hide");
   appShell.classList.remove("hide");
-  userEmail.innerText = user.email || "Logged in";
+  applyProfileToUi(profile);
+  setProfileEditVisibility(false);
 }
 
 function setSignedOutUi() {
   authFields.classList.remove("hide");
   authStatus.classList.add("hide");
   appShell.classList.add("hide");
+
+  authName.value = "";
+  authEmail.value = "";
+  authPassword.value = "";
+  authPhotoFile.value = "";
+
+  setProfileEditVisibility(false);
+  userName.innerText = "";
   userEmail.innerText = "";
+  homeUserName.innerText = "";
+  userAvatar.removeAttribute("src");
+  homeUserAvatar.removeAttribute("src");
 }
 
 function getBudgetDocRef(uid) {
@@ -159,6 +378,19 @@ async function saveBudget() {
   }
 
   await setDoc(getBudgetDocRef(currentUser.uid), { amount: Number(tempAmount) });
+}
+
+async function deleteUserData(uid) {
+  const expensesSnapshot = await getDocs(getExpensesCollectionRef(uid));
+
+  if (!expensesSnapshot.empty) {
+    await Promise.all(expensesSnapshot.docs.map((expenseDoc) => deleteDoc(expenseDoc.ref)));
+  }
+
+  await Promise.all([
+    deleteDoc(getBudgetDocRef(uid)).catch(() => {}),
+    deleteDoc(getProfileDocRef(uid)).catch(() => {}),
+  ]);
 }
 
 function renderAdvisor(state) {
@@ -527,12 +759,44 @@ function updateAllAnalytics() {
 
 registerButton.addEventListener("click", async () => {
   clearAuthError();
+
+  const name = authName.value.trim();
+
+  let photoDataUrl = "";
+  if (authPhotoFile.files && authPhotoFile.files[0]) {
+    try {
+      photoDataUrl = await getCompressedProfilePhoto(authPhotoFile.files[0]);
+    } catch (error) {
+      showAuthError(error.message || "Could not process selected image.");
+      return;
+    }
+  }
+
+  if (!name) {
+    showAuthError("Please enter your name before registering.");
+    return;
+  }
+
   try {
-    await createUserWithEmailAndPassword(
+    const credentials = await createUserWithEmailAndPassword(
       auth,
       authEmail.value.trim(),
       authPassword.value
     );
+
+    await updateProfile(credentials.user, {
+      displayName: name,
+      photoURL: "",
+    });
+
+    await saveUserProfile(credentials.user.uid, {
+      displayName: name,
+      photoURL: "",
+      photoDataUrl,
+    });
+
+    authName.value = "";
+    authPhotoFile.value = "";
     authEmail.value = "";
     authPassword.value = "";
   } catch (error) {
@@ -560,6 +824,41 @@ logoutButton.addEventListener("click", async () => {
   }
 });
 
+deleteAccountButton.addEventListener("click", async () => {
+  clearAuthError();
+
+  if (!currentUser) {
+    showAuthError("Please login first.");
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "This will permanently delete your account and all saved expenses. Continue?"
+  );
+  if (!confirmed) {
+    return;
+  }
+
+  const confirmText = window.prompt("Type DELETE to confirm account deletion:", "");
+  if ((confirmText || "").trim().toUpperCase() !== "DELETE") {
+    showAuthError("Deletion cancelled. Account was not deleted.");
+    return;
+  }
+
+  try {
+    const deletingUser = currentUser;
+    await deleteUserData(deletingUser.uid);
+    await deleteUser(deletingUser);
+  } catch (error) {
+    if (error?.code === "auth/requires-recent-login") {
+      showAuthError("For security, please log in again and then delete your account.");
+      return;
+    }
+
+    showAuthError(error.message || "Could not delete account. Please try again.");
+  }
+});
+
 googleLoginButton.addEventListener("click", async () => {
   clearAuthError();
   try {
@@ -581,6 +880,77 @@ forgotPasswordButton.addEventListener("click", async () => {
     showAuthError("Password reset email sent. Check your inbox.");
   } catch (error) {
     showAuthError(error.message || "Could not send password reset email.");
+  }
+});
+
+editProfileButton.addEventListener("click", async () => {
+  clearAuthError();
+  if (!currentUser) {
+    showAuthError("Please login first.");
+    return;
+  }
+
+  try {
+    const profile = await getUserProfile(currentUser);
+    profileNameInput.value = profile.displayName;
+    profilePhotoFile.value = "";
+    setProfileEditVisibility(true);
+  } catch {
+    showAuthError("Could not load profile. Please try again.");
+  }
+});
+
+cancelProfileButton.addEventListener("click", () => {
+  setProfileEditVisibility(false);
+});
+
+saveProfileButton.addEventListener("click", async () => {
+  clearAuthError();
+  if (!currentUser) {
+    showAuthError("Please login first.");
+    return;
+  }
+
+  const displayName = profileNameInput.value.trim();
+
+  if (!displayName) {
+    showAuthError("Name cannot be empty.");
+    return;
+  }
+
+  try {
+    const existingProfile = await getUserProfile(currentUser);
+    let photoDataUrl = existingProfile.photoDataUrl || "";
+
+    if (profilePhotoFile.files && profilePhotoFile.files[0]) {
+      photoDataUrl = await getCompressedProfilePhoto(profilePhotoFile.files[0]);
+    }
+
+    await updateProfile(currentUser, {
+      displayName,
+      photoURL: existingProfile.rawPhotoURL || currentUser.photoURL || "",
+    });
+
+    await saveUserProfile(currentUser.uid, {
+      displayName,
+      photoURL: existingProfile.rawPhotoURL || currentUser.photoURL || "",
+      photoDataUrl,
+    });
+
+    applyProfileToUi({
+      displayName,
+      email: currentUser.email || "",
+      photoURL:
+        photoDataUrl ||
+        existingProfile.rawPhotoURL ||
+        currentUser.photoURL ||
+        defaultProfilePhoto,
+    });
+
+    profilePhotoFile.value = "";
+    setProfileEditVisibility(false);
+  } catch (error) {
+    showAuthError(error.message || "Could not update profile. Please try again.");
   }
 });
 
@@ -669,12 +1039,13 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   currentUser = user;
-  setSignedInUi(user);
 
   try {
+    const profile = await ensureProfileSynced(user);
+    setSignedInUi(profile);
     await loadBudgetAndExpenses(user.uid);
   } catch {
-    showAuthError("Could not load your data from Firestore.");
+    showAuthError("Could not load your account data from Firestore.");
   }
 });
 
