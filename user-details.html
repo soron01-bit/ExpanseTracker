@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Details</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="user-details-page-wrapper">
+      <div class="page-header">
+        <a href="index.html" class="back-link">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Home
+        </a>
+        <h2>User Details</h2>
+      </div>
+
+      <div class="user-details-container">
+        <div class="user-profile-section">
+          <img id="details-user-avatar" class="user-avatar-large" alt="Profile picture" />
+          <p id="details-user-name" class="details-user-name"></p>
+          <p id="details-user-email" class="details-user-email"></p>
+        </div>
+
+        <div class="user-actions-section">
+          <button class="submit secondary" id="edit-profile-button" type="button">Edit Profile</button>
+          <button class="submit" id="logout-button" type="button">Logout</button>
+          <button class="submit danger" id="delete-account-button" type="button">Delete Account</button>
+        </div>
+
+        <div class="hide edit-profile-section" id="edit-profile-form">
+          <p class="profile-edit-title">Update Profile</p>
+          <input type="text" id="profile-name" name="profile-name" autocomplete="name" placeholder="Full name" />
+          <input type="file" id="profile-photo-file" accept="image/*" />
+          <p class="input-help-text">Select a new picture from gallery (optional)</p>
+          <div class="auth-buttons">
+            <button class="submit secondary" id="save-profile-button" type="button">Save Profile</button>
+            <button class="submit" id="cancel-profile-button" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="firebase-runtime-config.js"></script>
+    <script type="module" src="user-details.js"></script>
+  </body>
+</html>

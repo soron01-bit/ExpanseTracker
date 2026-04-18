@@ -20,7 +20,7 @@
   </head>
 
   <body>
-    <div class="auth-container">
+    <div class="auth-container" id="auth-container">
       <h3>Account</h3>
       <div class="autofill-guard" aria-hidden="true">
         <input type="text" tabindex="-1" autocomplete="username" />
@@ -58,39 +58,18 @@
           Forgot password?
         </button>
       </div>
-      <div class="auth-status hide" id="auth-status">
-        <div class="user-profile-inline">
-          <img id="user-avatar" class="user-avatar" alt="Profile picture" />
-          <div>
-            <p id="user-name"></p>
-            <p id="user-email"></p>
-          </div>
-        </div>
-        <button class="submit secondary" id="edit-profile-button">Edit Profile</button>
-        <button class="submit" id="logout-button">Logout</button>
-        <button class="submit danger" id="delete-account-button" type="button">Delete Account</button>
-      </div>
-      <div class="hide profile-edit" id="profile-edit-form">
-        <p class="profile-edit-title">Update Profile</p>
-        <input type="text" id="profile-name" name="profile-name" autocomplete="name" placeholder="Full name" />
-        <input type="file" id="profile-photo-file" accept="image/*" />
-        <p class="input-help-text">Select a new picture from gallery (optional)</p>
-        <div class="auth-buttons">
-          <button class="submit secondary" id="save-profile-button" type="button">Save Profile</button>
-          <button class="submit" id="cancel-profile-button" type="button">Cancel</button>
-        </div>
-      </div>
     </div>
 
     <div class="wrapper hide" id="app-shell">
       <div class="home-profile-bar">
-        <div class="user-profile-inline">
+        <a href="user-details.html" class="profile-bar-button" aria-label="Open user details">
           <img id="home-user-avatar" class="user-avatar" alt="Profile picture" />
           <div>
             <p class="home-welcome">Welcome</p>
             <p id="home-user-name"></p>
           </div>
-        </div>
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
       </div>
       <div class="container">
         <div class="sub-container">

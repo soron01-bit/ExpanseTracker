@@ -2,8 +2,6 @@ import { auth, db } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut,
-  deleteUser,
   onAuthStateChanged,
   updateProfile,
   GoogleAuthProvider,
@@ -49,20 +47,9 @@ const registerButton = document.getElementById("register-button");
 const loginButton = document.getElementById("login-button");
 const googleLoginButton = document.getElementById("google-login-button");
 const forgotPasswordButton = document.getElementById("forgot-password-button");
-const logoutButton = document.getElementById("logout-button");
-const deleteAccountButton = document.getElementById("delete-account-button");
-const editProfileButton = document.getElementById("edit-profile-button");
-const saveProfileButton = document.getElementById("save-profile-button");
-const cancelProfileButton = document.getElementById("cancel-profile-button");
+const authContainer = document.getElementById("auth-container");
 const authFields = document.getElementById("auth-fields");
-const authStatus = document.getElementById("auth-status");
-const profileEditForm = document.getElementById("profile-edit-form");
-const profileNameInput = document.getElementById("profile-name");
-const profilePhotoFile = document.getElementById("profile-photo-file");
-const userAvatar = document.getElementById("user-avatar");
 const homeUserAvatar = document.getElementById("home-user-avatar");
-const userName = document.getElementById("user-name");
-const userEmail = document.getElementById("user-email");
 const homeUserName = document.getElementById("home-user-name");
 const appShell = document.getElementById("app-shell");
 
@@ -179,19 +166,8 @@ function getPhotoUrl(user, profileData) {
 }
 
 function applyProfileToUi(profile) {
-  userName.innerText = profile.displayName;
-  userEmail.innerText = profile.email || "";
   homeUserName.innerText = profile.displayName;
-  userAvatar.src = profile.photoURL;
   homeUserAvatar.src = profile.photoURL;
-}
-
-function setProfileEditVisibility(showEdit) {
-  if (showEdit) {
-    profileEditForm.classList.remove("hide");
-  } else {
-    profileEditForm.classList.add("hide");
-  }
 }
 
 async function saveUserProfile(uid, profileData) {
@@ -323,16 +299,15 @@ function getAuthEmailOrShowError() {
 }
 
 function setSignedInUi(profile) {
+  authContainer.classList.add("hide");
   authFields.classList.add("hide");
-  authStatus.classList.remove("hide");
   appShell.classList.remove("hide");
   applyProfileToUi(profile);
-  setProfileEditVisibility(false);
 }
 
 function setSignedOutUi() {
+  authContainer.classList.remove("hide");
   authFields.classList.remove("hide");
-  authStatus.classList.add("hide");
   appShell.classList.add("hide");
 
   authName.value = "";
@@ -340,11 +315,7 @@ function setSignedOutUi() {
   authPassword.value = "";
   authPhotoFile.value = "";
 
-  setProfileEditVisibility(false);
-  userName.innerText = "";
-  userEmail.innerText = "";
   homeUserName.innerText = "";
-  userAvatar.removeAttribute("src");
   homeUserAvatar.removeAttribute("src");
 }
 
@@ -378,19 +349,6 @@ async function saveBudget() {
   }
 
   await setDoc(getBudgetDocRef(currentUser.uid), { amount: Number(tempAmount) });
-}
-
-async function deleteUserData(uid) {
-  const expensesSnapshot = await getDocs(getExpensesCollectionRef(uid));
-
-  if (!expensesSnapshot.empty) {
-    await Promise.all(expensesSnapshot.docs.map((expenseDoc) => deleteDoc(expenseDoc.ref)));
-  }
-
-  await Promise.all([
-    deleteDoc(getBudgetDocRef(uid)).catch(() => {}),
-    deleteDoc(getProfileDocRef(uid)).catch(() => {}),
-  ]);
 }
 
 function renderAdvisor(state) {
@@ -815,50 +773,6 @@ loginButton.addEventListener("click", async () => {
   }
 });
 
-logoutButton.addEventListener("click", async () => {
-  clearAuthError();
-  try {
-    await signOut(auth);
-  } catch (error) {
-    showAuthError(error.message || "Logout failed.");
-  }
-});
-
-deleteAccountButton.addEventListener("click", async () => {
-  clearAuthError();
-
-  if (!currentUser) {
-    showAuthError("Please login first.");
-    return;
-  }
-
-  const confirmed = window.confirm(
-    "This will permanently delete your account and all saved expenses. Continue?"
-  );
-  if (!confirmed) {
-    return;
-  }
-
-  const confirmText = window.prompt("Type DELETE to confirm account deletion:", "");
-  if ((confirmText || "").trim().toUpperCase() !== "DELETE") {
-    showAuthError("Deletion cancelled. Account was not deleted.");
-    return;
-  }
-
-  try {
-    const deletingUser = currentUser;
-    await deleteUserData(deletingUser.uid);
-    await deleteUser(deletingUser);
-  } catch (error) {
-    if (error?.code === "auth/requires-recent-login") {
-      showAuthError("For security, please log in again and then delete your account.");
-      return;
-    }
-
-    showAuthError(error.message || "Could not delete account. Please try again.");
-  }
-});
-
 googleLoginButton.addEventListener("click", async () => {
   clearAuthError();
   try {
@@ -883,76 +797,6 @@ forgotPasswordButton.addEventListener("click", async () => {
   }
 });
 
-editProfileButton.addEventListener("click", async () => {
-  clearAuthError();
-  if (!currentUser) {
-    showAuthError("Please login first.");
-    return;
-  }
-
-  try {
-    const profile = await getUserProfile(currentUser);
-    profileNameInput.value = profile.displayName;
-    profilePhotoFile.value = "";
-    setProfileEditVisibility(true);
-  } catch {
-    showAuthError("Could not load profile. Please try again.");
-  }
-});
-
-cancelProfileButton.addEventListener("click", () => {
-  setProfileEditVisibility(false);
-});
-
-saveProfileButton.addEventListener("click", async () => {
-  clearAuthError();
-  if (!currentUser) {
-    showAuthError("Please login first.");
-    return;
-  }
-
-  const displayName = profileNameInput.value.trim();
-
-  if (!displayName) {
-    showAuthError("Name cannot be empty.");
-    return;
-  }
-
-  try {
-    const existingProfile = await getUserProfile(currentUser);
-    let photoDataUrl = existingProfile.photoDataUrl || "";
-
-    if (profilePhotoFile.files && profilePhotoFile.files[0]) {
-      photoDataUrl = await getCompressedProfilePhoto(profilePhotoFile.files[0]);
-    }
-
-    await updateProfile(currentUser, {
-      displayName,
-      photoURL: existingProfile.rawPhotoURL || currentUser.photoURL || "",
-    });
-
-    await saveUserProfile(currentUser.uid, {
-      displayName,
-      photoURL: existingProfile.rawPhotoURL || currentUser.photoURL || "",
-      photoDataUrl,
-    });
-
-    applyProfileToUi({
-      displayName,
-      email: currentUser.email || "",
-      photoURL:
-        photoDataUrl ||
-        existingProfile.rawPhotoURL ||
-        currentUser.photoURL ||
-        defaultProfilePhoto,
-    });
-
-    profilePhotoFile.value = "";
-    setProfileEditVisibility(false);
-  } catch (error) {
-    showAuthError(error.message || "Could not update profile. Please try again.");
-  }
-});
 
 totalAmountButton.addEventListener("click", async () => {
   tempAmount = Number(totalAmount.value);
