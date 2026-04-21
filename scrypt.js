@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, authReady, db } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -26,6 +26,7 @@ const userAmount = document.getElementById("user-amount");
 const checkAmountButton = document.getElementById("check-amount");
 const totalAmountButton = document.getElementById("total-amount-button");
 const productTitle = document.getElementById("product-title");
+const expenseDateInput = document.getElementById("expense-date");
 const errorMessage = document.getElementById("budget-error");
 const productTitleError = document.getElementById("product-title-error");
 const amount = document.getElementById("amount");
@@ -49,6 +50,8 @@ const googleLoginButton = document.getElementById("google-login-button");
 const forgotPasswordButton = document.getElementById("forgot-password-button");
 const authContainer = document.getElementById("auth-container");
 const authFields = document.getElementById("auth-fields");
+const rememberedAccountsContainer = document.getElementById("remembered-accounts");
+const rememberedAccountsList = document.getElementById("remembered-accounts-list");
 const homeUserAvatar = document.getElementById("home-user-avatar");
 const homeUserName = document.getElementById("home-user-name");
 const appShell = document.getElementById("app-shell");
@@ -61,21 +64,34 @@ let expenseChart = null;
 const googleProvider = new GoogleAuthProvider();
 const defaultProfilePhoto =
   "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f464.png";
+const rememberedAccountsStorageKey = "budgetRememberedAccounts";
 
 function unlockNameInput() {
-  authName.removeAttribute("readonly");
+  if (authName) {
+    authName.removeAttribute("readonly");
+  }
 }
 
-authName.addEventListener("pointerdown", unlockNameInput);
-authName.addEventListener("focus", unlockNameInput);
+if (authName) {
+  authName.addEventListener("pointerdown", unlockNameInput);
+  authName.addEventListener("focus", unlockNameInput);
+}
 
 window.addEventListener("pageshow", () => {
   // Some browsers rehydrate autofill after refresh; force-clear auth fields in signed-out view.
   if (!currentUser) {
-    authName.value = "";
+    if (authName) {
+      authName.value = "";
+    }
     authEmail.value = "";
     authPassword.value = "";
-    authPhotoFile.value = "";
+    if (authPhotoFile) {
+      authPhotoFile.value = "";
+    }
+  }
+
+  if (expenseDateInput) {
+    expenseDateInput.value = toDateInputValue(new Date());
   }
 });
 
@@ -103,6 +119,35 @@ function getExpenseAmount(expense) {
   return Number(expense.total_amount ?? expense.cost ?? 0);
 }
 
+function toDateInputValue(dateLike) {
+  const parsed = new Date(dateLike || Date.now());
+  const validDate = Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  return `${validDate.getFullYear()}-${String(validDate.getMonth() + 1).padStart(2, "0")}-${String(validDate.getDate()).padStart(2, "0")}`;
+}
+
+function buildIsoFromDateInput(dateInputValue, fallbackIso) {
+  const safeDateValue = (dateInputValue || "").trim();
+  const fallbackDate = new Date(fallbackIso || Date.now());
+  const baseDate = Number.isNaN(fallbackDate.getTime()) ? new Date() : fallbackDate;
+
+  if (!safeDateValue) {
+    return baseDate.toISOString();
+  }
+
+  const [yearRaw, monthRaw, dayRaw] = safeDateValue.split("-");
+  const year = Number(yearRaw);
+  const month = Number(monthRaw);
+  const day = Number(dayRaw);
+
+  if (!year || !month || !day) {
+    return baseDate.toISOString();
+  }
+
+  const mergedDate = new Date(baseDate);
+  mergedDate.setFullYear(year, month - 1, day);
+  return mergedDate.toISOString();
+}
+
 function getNormalizedExpense(expense) {
   return {
     ...expense,
@@ -125,6 +170,133 @@ function showAuthError(message) {
 
 function clearAuthError() {
   authError.classList.add("hide");
+}
+
+function getRememberedAccounts() {
+  try {
+    const raw = localStorage.getItem(rememberedAccountsStorageKey);
+    const parsed = JSON.parse(raw || "[]");
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .filter((item) => item && typeof item === "object")
+      .map((item) => ({
+        uid: String(item.uid || "").trim(),
+        email: String(item.email || "").trim(),
+        displayName: String(item.displayName || "").trim(),
+        photoURL: String(item.photoURL || "").trim(),
+        lastUsedAt: Number(item.lastUsedAt || 0),
+      }))
+      .filter((item) => item.uid && item.email)
+      .sort((a, b) => b.lastUsedAt - a.lastUsedAt)
+      .slice(0, 6);
+  } catch {
+    return [];
+  }
+}
+
+function setRememberedAccounts(accounts) {
+  try {
+    localStorage.setItem(
+      rememberedAccountsStorageKey,
+      JSON.stringify(accounts.slice(0, 6))
+    );
+  } catch {
+    // Browsers can block localStorage in strict/privacy contexts.
+  }
+}
+
+function rememberAccount(user, profile) {
+  if (!user?.uid || !user?.email) {
+    return;
+  }
+
+  const nextAccount = {
+    uid: user.uid,
+    email: user.email,
+    displayName: profile?.displayName || user.displayName || user.email.split("@")[0] || "User",
+    photoURL: profile?.photoURL || user.photoURL || defaultProfilePhoto,
+    lastUsedAt: Date.now(),
+  };
+
+  const otherAccounts = getRememberedAccounts().filter((item) => item.uid !== user.uid);
+  setRememberedAccounts([nextAccount, ...otherAccounts]);
+}
+
+function removeRememberedAccount(uid) {
+  const next = getRememberedAccounts().filter((item) => item.uid !== uid);
+  setRememberedAccounts(next);
+  renderRememberedAccounts();
+}
+
+function createRememberedAccountItem(account) {
+  const accountItem = document.createElement("div");
+  accountItem.classList.add("remembered-account-item");
+
+  const accountButton = document.createElement("button");
+  accountButton.type = "button";
+  accountButton.classList.add("remembered-account-button");
+  accountButton.setAttribute("aria-label", `Continue as ${account.email}`);
+
+  const avatar = document.createElement("img");
+  avatar.classList.add("remembered-account-avatar");
+  avatar.src = account.photoURL || defaultProfilePhoto;
+  avatar.alt = account.displayName || "User";
+
+  const textWrap = document.createElement("span");
+
+  const nameLabel = document.createElement("span");
+  nameLabel.classList.add("remembered-account-name");
+  nameLabel.innerText = account.displayName || "User";
+
+  const emailLabel = document.createElement("span");
+  emailLabel.classList.add("remembered-account-email");
+  emailLabel.innerText = account.email;
+
+  textWrap.appendChild(nameLabel);
+  textWrap.appendChild(emailLabel);
+  accountButton.appendChild(avatar);
+  accountButton.appendChild(textWrap);
+
+  accountButton.addEventListener("click", () => {
+    authEmail.value = account.email;
+    authPassword.focus();
+    clearAuthError();
+  });
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.classList.add("remembered-account-remove");
+  removeButton.setAttribute("aria-label", `Remove ${account.email}`);
+  removeButton.innerText = "x";
+  removeButton.addEventListener("click", () => removeRememberedAccount(account.uid));
+
+  accountItem.appendChild(accountButton);
+  accountItem.appendChild(removeButton);
+  return accountItem;
+}
+
+function renderRememberedAccounts() {
+  if (!rememberedAccountsContainer || !rememberedAccountsList) {
+    return;
+  }
+
+  const rememberedAccounts = getRememberedAccounts();
+  rememberedAccountsList.innerHTML = "";
+
+  if (!rememberedAccounts.length) {
+    rememberedAccountsContainer.classList.add("hide");
+    return;
+  }
+
+  rememberedAccounts.forEach((account) => {
+    rememberedAccountsList.appendChild(createRememberedAccountItem(account));
+  });
+
+  rememberedAccountsContainer.classList.remove("hide");
 }
 
 function getProfileDocRef(uid) {
@@ -310,13 +482,19 @@ function setSignedOutUi() {
   authFields.classList.remove("hide");
   appShell.classList.add("hide");
 
-  authName.value = "";
+  if (authName) {
+    authName.value = "";
+  }
   authEmail.value = "";
   authPassword.value = "";
-  authPhotoFile.value = "";
+  if (authPhotoFile) {
+    authPhotoFile.value = "";
+  }
 
   homeUserName.innerText = "";
   homeUserAvatar.removeAttribute("src");
+
+  renderRememberedAccounts();
 }
 
 function getBudgetDocRef(uid) {
@@ -407,6 +585,9 @@ function editExpense(id) {
 
   productTitle.value = expenseItem.title || "";
   userAmount.value = getExpenseAmount(expenseItem);
+  if (expenseDateInput) {
+    expenseDateInput.value = toDateInputValue(expenseItem.date);
+  }
   editingExpenseId = id;
   checkAmountButton.innerText = "Update Amount";
   disableButtons(true);
@@ -715,52 +896,54 @@ function updateAllAnalytics() {
   updateAdvisorForExpense();
 }
 
-registerButton.addEventListener("click", async () => {
-  clearAuthError();
+if (registerButton && authName && authPhotoFile) {
+  registerButton.addEventListener("click", async () => {
+    clearAuthError();
 
-  const name = authName.value.trim();
+    const name = authName.value.trim();
 
-  let photoDataUrl = "";
-  if (authPhotoFile.files && authPhotoFile.files[0]) {
-    try {
-      photoDataUrl = await getCompressedProfilePhoto(authPhotoFile.files[0]);
-    } catch (error) {
-      showAuthError(error.message || "Could not process selected image.");
+    let photoDataUrl = "";
+    if (authPhotoFile.files && authPhotoFile.files[0]) {
+      try {
+        photoDataUrl = await getCompressedProfilePhoto(authPhotoFile.files[0]);
+      } catch (error) {
+        showAuthError(error.message || "Could not process selected image.");
+        return;
+      }
+    }
+
+    if (!name) {
+      showAuthError("Please enter your name before registering.");
       return;
     }
-  }
 
-  if (!name) {
-    showAuthError("Please enter your name before registering.");
-    return;
-  }
+    try {
+      const credentials = await createUserWithEmailAndPassword(
+        auth,
+        authEmail.value.trim(),
+        authPassword.value
+      );
 
-  try {
-    const credentials = await createUserWithEmailAndPassword(
-      auth,
-      authEmail.value.trim(),
-      authPassword.value
-    );
+      await updateProfile(credentials.user, {
+        displayName: name,
+        photoURL: "",
+      });
 
-    await updateProfile(credentials.user, {
-      displayName: name,
-      photoURL: "",
-    });
+      await saveUserProfile(credentials.user.uid, {
+        displayName: name,
+        photoURL: "",
+        photoDataUrl,
+      });
 
-    await saveUserProfile(credentials.user.uid, {
-      displayName: name,
-      photoURL: "",
-      photoDataUrl,
-    });
-
-    authName.value = "";
-    authPhotoFile.value = "";
-    authEmail.value = "";
-    authPassword.value = "";
-  } catch (error) {
-    showAuthError(error.message || "Registration failed.");
-  }
-});
+      authName.value = "";
+      authPhotoFile.value = "";
+      authEmail.value = "";
+      authPassword.value = "";
+    } catch (error) {
+      showAuthError(error.message || "Registration failed.");
+    }
+  });
+}
 
 loginButton.addEventListener("click", async () => {
   clearAuthError();
@@ -838,11 +1021,19 @@ checkAmountButton.addEventListener("click", async () => {
     return;
   }
 
+  const existingExpense = editingExpenseId
+    ? savedExpenses.find((item) => item.id === editingExpenseId)
+    : null;
+  const resolvedDateIso = buildIsoFromDateInput(
+    expenseDateInput ? expenseDateInput.value : "",
+    existingExpense?.date || new Date().toISOString()
+  );
+
   const payload = {
     type: "normal",
     title: productTitle.value.trim(),
     cost: expenditure,
-    date: new Date().toISOString(),
+    date: resolvedDateIso,
   };
 
   try {
@@ -861,11 +1052,20 @@ checkAmountButton.addEventListener("click", async () => {
 
     userAmount.value = "";
     productTitle.value = "";
+    if (expenseDateInput) {
+      expenseDateInput.value = toDateInputValue(new Date());
+    }
     loadExpenses();
   } catch {
     showAuthError("Could not save expense. Please try again.");
   }
 });
+
+await authReady;
+renderRememberedAccounts();
+if (expenseDateInput) {
+  expenseDateInput.value = toDateInputValue(new Date());
+}
 
 onAuthStateChanged(auth, async (user) => {
   clearAuthError();
@@ -886,6 +1086,7 @@ onAuthStateChanged(auth, async (user) => {
 
   try {
     const profile = await ensureProfileSynced(user);
+    rememberAccount(user, profile);
     setSignedInUi(profile);
     await loadBudgetAndExpenses(user.uid);
   } catch {

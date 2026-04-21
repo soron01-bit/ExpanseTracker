@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, authReady, db } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -420,6 +420,8 @@ forgotPasswordButton.addEventListener("click", async () => {
     showAuthError(error.message || "Could not send password reset email.");
   }
 });
+
+await authReady;
 
 onAuthStateChanged(auth, async (user) => {
   clearAuthError();

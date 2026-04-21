@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, authReady, db } from "./firebase-config.js";
 import {
   signOut,
   deleteUser,
@@ -303,6 +303,8 @@ deleteAccountButton.addEventListener("click", async () => {
     window.alert(error.message || "Could not delete account. Please try again.");
   }
 });
+
+await authReady;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {

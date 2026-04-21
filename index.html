@@ -27,17 +27,11 @@
         <input type="password" tabindex="-1" autocomplete="current-password" />
       </div>
       <p class="hide error" id="auth-error">Authentication failed</p>
+      <div class="remembered-accounts hide" id="remembered-accounts">
+        <p class="remembered-accounts-title">Tap account to continue</p>
+        <div class="remembered-accounts-list" id="remembered-accounts-list"></div>
+      </div>
       <div class="auth-fields" id="auth-fields">
-        <input
-          type="text"
-          id="auth-name"
-          name="register-display-name"
-          autocomplete="off"
-          readonly
-          placeholder="Full name (for new account)"
-        />
-        <input type="file" id="auth-photo-file" accept="image/*" />
-        <p class="input-help-text">Choose profile picture from gallery (optional)</p>
         <input type="email" id="auth-email" name="email" autocomplete="email" placeholder="Email" />
         <input
           type="password"
@@ -47,13 +41,13 @@
           placeholder="Password"
         />
         <div class="auth-buttons">
-          <button class="submit" id="register-button">Register</button>
           <button class="submit secondary" id="login-button">Login</button>
         </div>
         <button class="submit google-button" id="google-login-button">
           <i class="fa-brands fa-google"></i>
           Sign in with Google
         </button>
+        <a class="auth-link-button" href="register.html">Create new account</a>
         <button class="auth-link-button" id="forgot-password-button" type="button">
           Forgot password?
         </button>
@@ -103,6 +97,11 @@
               type="number"
               id="user-amount"
               placeholder="Enter Cost of Product"
+            />
+            <input
+              type="date"
+              id="expense-date"
+              placeholder="Expense date"
             />
             <button class="submit" id="check-amount">Check Amount</button>
             <a class="submit secondary page-link" href="split-expense.html">

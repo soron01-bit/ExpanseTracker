@@ -118,6 +118,92 @@ body::after {
   margin-bottom: 0.7rem;
 }
 
+.remembered-accounts {
+  margin-bottom: 0.9rem;
+}
+
+.remembered-accounts-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 0.42rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.remembered-accounts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.6rem;
+}
+
+.remembered-account-item {
+  display: flex;
+  align-items: center;
+  gap: 0.48rem;
+}
+
+.remembered-account-button {
+  width: 100%;
+  border: 1px solid rgba(23, 34, 57, 0.18);
+  border-radius: 14px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.45));
+  padding: 0.5rem 0.62rem;
+  display: flex;
+  align-items: center;
+  gap: 0.56rem;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.remembered-account-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(44, 123, 246, 0.52);
+  box-shadow: 0 10px 18px rgba(21, 38, 80, 0.14);
+}
+
+.remembered-account-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.remembered-account-name {
+  display: block;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.remembered-account-email {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.1;
+}
+
+.remembered-account-remove {
+  border: 1px solid rgba(23, 34, 57, 0.14);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.56);
+  color: var(--ink-soft);
+  min-width: 32px;
+  height: 32px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.remembered-account-remove:hover {
+  color: #b91c1c;
+  border-color: rgba(185, 28, 28, 0.42);
+  background: rgba(255, 240, 240, 0.85);
+}
+
 .input-help-text {
   margin-top: -0.28rem;
   margin-bottom: 0.62rem;
@@ -129,6 +215,10 @@ body::after {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+}
+
+.auth-buttons-single {
+  grid-template-columns: 1fr;
 }
 
 .auth-status {
@@ -843,6 +933,10 @@ footer {
 @media (max-width: 640px) {
   body {
     padding-bottom: 62px;
+  }
+
+  .remembered-accounts-list {
+    grid-template-columns: 1fr;
   }
 
   .auth-buttons,

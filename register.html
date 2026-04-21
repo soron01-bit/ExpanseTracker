@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Account</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div class="auth-container" id="auth-container">
+      <h3>Create Account</h3>
+      <p class="hide error" id="auth-error">Registration failed</p>
+      <div class="auth-fields" id="auth-fields">
+        <input
+          type="text"
+          id="auth-name"
+          name="register-display-name"
+          autocomplete="name"
+          placeholder="Full name"
+        />
+        <input type="file" id="auth-photo-file" accept="image/*" />
+        <p class="input-help-text">Choose profile picture from gallery (optional)</p>
+        <input type="email" id="auth-email" name="email" autocomplete="email" placeholder="Email" />
+        <input
+          type="password"
+          id="auth-password"
+          name="new-password"
+          autocomplete="new-password"
+          placeholder="Password"
+        />
+        <div class="auth-buttons auth-buttons-single">
+          <button class="submit" id="register-button">Create Account</button>
+        </div>
+        <a class="auth-link-button" href="index.html">Already have an account? Login</a>
+      </div>
+    </div>
+
+    <script src="firebase-runtime-config.js"></script>
+    <script type="module" src="register.js"></script>
+  </body>
+</html>
